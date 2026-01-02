@@ -17,7 +17,7 @@
 - firebase-specialist: Auth, Firestore-Struktur, Security Rules, Offline Sync, Query-Patterns.
 - data-model-guardian: MVP-Datenmodell strikt pruefen (Household, Recipe, PlanEntry, ShoppingList, Ingredient) inkl. Schema-Versionierung.
 - sync-conflict-analyst: Offline-Konflikte, Merge-Strategien, Transaktionen, idempotente Updates.
-- qa-lead: Testplan, Smoke Tests, Offline-Checks.
+- qa-lead: Testplan, Smoke Tests, Offline-Checks; Phase-Ende Pflicht-Tests koordinieren und dokumentieren.
 - ux-director: Minimal-UX fuer Planung/Einkauf/Import inkl. OCR-Review und Snapshot-Einkaufsliste.
 
 ## Guardrails
@@ -36,3 +36,11 @@
 - Screenshot-Import (OCR) parst nur Zutaten, Review-Flow zum Korrigieren vorhanden.
 - UX: Basis-Flows Planung, Einkauf, Import sind navigierbar, ohne Dead-Ends.
 - QA: Smoke-Tests fuer Plan/Einkauf/Import dokumentiert und vom Debugger-Review bestaetigt.
+
+## Phase-Ende Tests (Pflicht)
+- Jede Phase endet mit einem kurzen Test-Block (Fail = Phase nicht abgeschlossen).
+- Phase 1: Build+Run (Debug) erfolgreich, App startet auf Device.
+- Phase 2: CRUD-Smoketests fuer Household, Recipe, PlanEntry (Lunch/Dinner), ShoppingList Snapshot.
+- Phase 3: Aggregation verifiziert (korrekte Summen), Offline-Toggle (Flugmodus) getestet, Sync nach Reconnect ok.
+- Phase 4: Export (Text/CSV) und REWE-Deep-Link getestet.
+- Phase 5: OCR-Import tested (Cookidoo Screenshot), Review-Flow getestet, keine Zubereitungstexte gespeichert.
