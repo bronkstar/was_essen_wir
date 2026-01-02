@@ -51,3 +51,4 @@
 
 ## Status
 - 2026-01-01: Konzept neu angelegt. (Autor: Codex)
+- 2026-01-01: Repo initialisiert (AGENTS, README, .gitignore, .env.example). Commit: 616fac3. (Autor: Codex)
