@@ -39,6 +39,8 @@
 
 ## Phase-Ende Tests (Pflicht)
 - Jede Phase endet mit einem kurzen Test-Block (Fail = Phase nicht abgeschlossen).
+- Testergebnisse werden in einem separaten Dokument festgehalten inkl. Empfehlungen.
+- Naechste Phase startet erst, wenn Empfehlungen besprochen und bestaetigt sind.
 - Phase 1: Build+Run (Debug) erfolgreich, App startet auf Device.
 - Phase 2: CRUD-Smoketests fuer Household, Recipe, PlanEntry (Lunch/Dinner), ShoppingList Snapshot.
 - Phase 3: Aggregation verifiziert (korrekte Summen), Offline-Toggle (Flugmodus) getestet, Sync nach Reconnect ok.
