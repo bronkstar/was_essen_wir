@@ -1,0 +1,27 @@
+# Gradle / Android
+.gradle/
+**/build/
+local.properties
+*.iml
+
+# Android Studio / IntelliJ
+.idea/
+.idea/**/*
+
+# Keystores / Signing
+*.jks
+*.keystore
+*.key
+
+# Firebase
+app/google-services.json
+GoogleService-Info.plist
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
