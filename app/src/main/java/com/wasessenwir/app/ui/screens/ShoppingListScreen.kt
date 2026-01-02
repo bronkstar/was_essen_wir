@@ -25,10 +25,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.data.model.ShoppingItem
 import com.wasessenwir.app.data.model.ShoppingList
 import com.wasessenwir.app.ui.AppViewModel
+import com.wasessenwir.app.R
 
 @Composable
 fun ShoppingListScreen(viewModel: AppViewModel) {
@@ -49,11 +51,11 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
             .padding(16.dp)
     ) {
         if (activeHouseholdId == null) {
-            Text(text = "Bitte zuerst ein Household aktiv setzen.")
+            Text(text = stringResource(R.string.needs_active_household))
             return
         }
 
-        Text(text = "Shopping list snapshot", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.shopping_title), style = MaterialTheme.typography.titleMedium)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -61,7 +63,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
             value = weekStart,
             onValueChange = { weekStart = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = "Week start (YYYY-MM-DD)") }
+            label = { Text(text = stringResource(R.string.week_start_label)) }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -70,7 +72,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
             value = itemName,
             onValueChange = { itemName = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = "Item name") }
+            label = { Text(text = stringResource(R.string.item_name_label)) }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -80,14 +82,14 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                 value = itemAmount,
                 onValueChange = { itemAmount = it },
                 modifier = Modifier.weight(1f),
-                label = { Text(text = "Amount") }
+                label = { Text(text = stringResource(R.string.ingredient_amount_label)) }
             )
             Spacer(modifier = Modifier.width(8.dp))
             OutlinedTextField(
                 value = itemUnit,
                 onValueChange = { itemUnit = it },
                 modifier = Modifier.weight(1f),
-                label = { Text(text = "Unit") }
+                label = { Text(text = stringResource(R.string.ingredient_unit_label)) }
             )
         }
 
@@ -103,7 +105,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                 itemUnit = ""
             }
         }) {
-            Text(text = "Add item")
+            Text(text = stringResource(R.string.button_add_item))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -136,7 +138,11 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                     editingList = null
                 }
             }) {
-                Text(text = if (editingList == null) "Create" else "Save")
+                Text(
+                    text = stringResource(
+                        if (editingList == null) R.string.button_create else R.string.button_save
+                    )
+                )
             }
 
             if (editingList != null) {
@@ -146,7 +152,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                     weekStart = ""
                     draftItems.clear()
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(R.string.button_cancel))
                 }
             }
         }
@@ -162,7 +168,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
             items(shoppingLists, key = { it.id }) { list ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text(text = "Week: ${list.weekStart}")
+                        Text(text = stringResource(R.string.shopping_week_label, list.weekStart))
                         Spacer(modifier = Modifier.height(8.dp))
                         list.items.forEachIndexed { index, item ->
                             Row(modifier = Modifier.fillMaxWidth()) {
@@ -171,7 +177,10 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                                     modifier = Modifier.weight(1f)
                                 )
                                 Column(modifier = Modifier.padding(end = 8.dp)) {
-                                    Text(text = "Have it", style = MaterialTheme.typography.labelSmall)
+                                    Text(
+                                        text = stringResource(R.string.label_have_it),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
                                     Checkbox(
                                         checked = item.haveIt,
                                         onCheckedChange = { checked ->
@@ -182,7 +191,10 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                                     )
                                 }
                                 Column {
-                                    Text(text = "Checked", style = MaterialTheme.typography.labelSmall)
+                                    Text(
+                                        text = stringResource(R.string.label_checked),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
                                     Checkbox(
                                         checked = item.checked,
                                         onCheckedChange = { checked ->
@@ -202,11 +214,11 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                                 draftItems.clear()
                                 draftItems.addAll(list.items)
                             }) {
-                                Text(text = "Edit")
+                                Text(text = stringResource(R.string.button_edit))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(onClick = { viewModel.deleteShoppingList(list.id) }) {
-                                Text(text = "Delete")
+                                Text(text = stringResource(R.string.button_delete))
                             }
                         }
                     }

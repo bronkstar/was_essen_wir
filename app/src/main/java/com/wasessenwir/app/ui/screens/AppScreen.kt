@@ -16,13 +16,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.stringResource
 import com.wasessenwir.app.ui.AppViewModel
 import androidx.compose.ui.unit.dp
+import com.wasessenwir.app.R
 
 @Composable
 fun AppScreen(viewModel: AppViewModel, modifier: Modifier = Modifier) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Households", "Recipes", "Plan", "Shopping")
+    val tabs = listOf(
+        R.string.tab_households,
+        R.string.tab_recipes,
+        R.string.tab_plan,
+        R.string.tab_shopping
+    )
     val authError by viewModel.authError.collectAsState()
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -39,7 +46,7 @@ fun AppScreen(viewModel: AppViewModel, modifier: Modifier = Modifier) {
                 Tab(
                     selected = selectedTab == index,
                     onClick = { selectedTab = index },
-                    text = { Text(text = title) }
+                    text = { Text(text = stringResource(title)) }
                 )
             }
         }

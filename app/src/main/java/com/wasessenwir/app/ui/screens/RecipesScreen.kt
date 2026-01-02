@@ -24,10 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.data.model.Ingredient
 import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.ui.AppViewModel
+import com.wasessenwir.app.R
 
 @Composable
 fun RecipesScreen(viewModel: AppViewModel) {
@@ -49,11 +51,11 @@ fun RecipesScreen(viewModel: AppViewModel) {
             .padding(16.dp)
     ) {
         if (activeHouseholdId == null) {
-            Text(text = "Bitte zuerst ein Household aktiv setzen.")
+            Text(text = stringResource(R.string.needs_active_household))
             return
         }
 
-        Text(text = "Recipe", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.recipe_title), style = MaterialTheme.typography.titleMedium)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -61,7 +63,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
             value = name,
             onValueChange = { name = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = "Name") }
+            label = { Text(text = stringResource(R.string.recipe_name_label)) }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -70,12 +72,12 @@ fun RecipesScreen(viewModel: AppViewModel) {
             value = servingsText,
             onValueChange = { servingsText = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = "Servings") }
+            label = { Text(text = stringResource(R.string.recipe_servings_label)) }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text(text = "Ingredients", style = MaterialTheme.typography.labelMedium)
+        Text(text = stringResource(R.string.ingredients_title), style = MaterialTheme.typography.labelMedium)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -83,7 +85,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
             value = ingredientName,
             onValueChange = { ingredientName = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = "Ingredient name") }
+            label = { Text(text = stringResource(R.string.ingredient_name_label)) }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -93,14 +95,14 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 value = ingredientAmount,
                 onValueChange = { ingredientAmount = it },
                 modifier = Modifier.weight(1f),
-                label = { Text(text = "Amount") }
+                label = { Text(text = stringResource(R.string.ingredient_amount_label)) }
             )
             Spacer(modifier = Modifier.width(8.dp))
             OutlinedTextField(
                 value = ingredientUnit,
                 onValueChange = { ingredientUnit = it },
                 modifier = Modifier.weight(1f),
-                label = { Text(text = "Unit") }
+                label = { Text(text = stringResource(R.string.ingredient_unit_label)) }
             )
         }
 
@@ -116,7 +118,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 ingredientUnit = ""
             }
         }) {
-            Text(text = "Add ingredient")
+            Text(text = stringResource(R.string.button_add_ingredient))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -152,7 +154,11 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     editingRecipe = null
                 }
             }) {
-                Text(text = if (editingRecipe == null) "Create" else "Save")
+                Text(
+                    text = stringResource(
+                        if (editingRecipe == null) R.string.button_create else R.string.button_save
+                    )
+                )
             }
 
             if (editingRecipe != null) {
@@ -163,7 +169,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     servingsText = "2"
                     draftIngredients.clear()
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(R.string.button_cancel))
                 }
             }
         }
@@ -180,8 +186,13 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
-                        Text(text = "Servings: ${recipe.servings}")
-                        Text(text = "Ingredients: ${recipe.ingredients.size}")
+                        Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
+                        Text(
+                            text = stringResource(
+                                R.string.recipe_ingredients_count,
+                                recipe.ingredients.size
+                            )
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
                             Button(onClick = {
@@ -191,11 +202,11 @@ fun RecipesScreen(viewModel: AppViewModel) {
                                 draftIngredients.clear()
                                 draftIngredients.addAll(recipe.ingredients)
                             }) {
-                                Text(text = "Edit")
+                                Text(text = stringResource(R.string.button_edit))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(onClick = { viewModel.deleteRecipe(recipe.id) }) {
-                                Text(text = "Delete")
+                                Text(text = stringResource(R.string.button_delete))
                             }
                         }
                     }

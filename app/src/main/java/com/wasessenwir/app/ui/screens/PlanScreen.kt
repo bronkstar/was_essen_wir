@@ -24,10 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.data.model.MealSlot
 import com.wasessenwir.app.data.model.PlanEntry
 import com.wasessenwir.app.ui.AppViewModel
+import com.wasessenwir.app.R
 
 @Composable
 fun PlanScreen(viewModel: AppViewModel) {
@@ -48,11 +50,11 @@ fun PlanScreen(viewModel: AppViewModel) {
             .padding(16.dp)
     ) {
         if (activeHouseholdId == null) {
-            Text(text = "Bitte zuerst ein Household aktiv setzen.")
+            Text(text = stringResource(R.string.needs_active_household))
             return
         }
 
-        Text(text = "Plan entry", style = MaterialTheme.typography.titleMedium)
+        Text(text = stringResource(R.string.plan_entry_title), style = MaterialTheme.typography.titleMedium)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -60,7 +62,7 @@ fun PlanScreen(viewModel: AppViewModel) {
             value = date,
             onValueChange = { date = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = "Date (YYYY-MM-DD)") }
+            label = { Text(text = stringResource(R.string.plan_date_label)) }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -70,21 +72,24 @@ fun PlanScreen(viewModel: AppViewModel) {
                 onClick = { selectedMealSlot = MealSlot.LUNCH },
                 enabled = selectedMealSlot != MealSlot.LUNCH
             ) {
-                Text(text = "Lunch")
+                Text(text = stringResource(R.string.meal_lunch))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = { selectedMealSlot = MealSlot.DINNER },
                 enabled = selectedMealSlot != MealSlot.DINNER
             ) {
-                Text(text = "Dinner")
+                Text(text = stringResource(R.string.meal_dinner))
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Selected recipe: ${selectedRecipe?.name ?: "-"}",
+            text = stringResource(
+                R.string.selected_recipe_label,
+                selectedRecipe?.name ?: "-"
+            ),
             style = MaterialTheme.typography.bodySmall
         )
 
@@ -104,7 +109,7 @@ fun PlanScreen(viewModel: AppViewModel) {
                             modifier = Modifier.weight(1f)
                         )
                         Button(onClick = { selectedRecipeId = recipe.id }) {
-                            Text(text = "Select")
+                            Text(text = stringResource(R.string.button_select))
                         }
                     }
                 }
@@ -135,7 +140,11 @@ fun PlanScreen(viewModel: AppViewModel) {
                     editingEntry = null
                 }
             }) {
-                Text(text = if (editingEntry == null) "Create" else "Save")
+                Text(
+                    text = stringResource(
+                        if (editingEntry == null) R.string.button_create else R.string.button_save
+                    )
+                )
             }
 
             if (editingEntry != null) {
@@ -146,7 +155,7 @@ fun PlanScreen(viewModel: AppViewModel) {
                     selectedRecipeId = null
                     selectedMealSlot = MealSlot.LUNCH
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(R.string.button_cancel))
                 }
             }
         }
@@ -161,10 +170,15 @@ fun PlanScreen(viewModel: AppViewModel) {
         ) {
             items(planEntries, key = { it.id }) { entry ->
                 val recipeName = recipes.firstOrNull { it.id == entry.recipeId }?.name ?: "-"
+                val mealLabel = if (entry.mealSlot == MealSlot.LUNCH) {
+                    stringResource(R.string.meal_lunch)
+                } else {
+                    stringResource(R.string.meal_dinner)
+                }
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text(text = "${entry.date} - ${entry.mealSlot}")
-                        Text(text = "Recipe: $recipeName")
+                        Text(text = "${entry.date} - $mealLabel")
+                        Text(text = stringResource(R.string.plan_recipe_label, recipeName))
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
                             Button(onClick = {
@@ -173,11 +187,11 @@ fun PlanScreen(viewModel: AppViewModel) {
                                 selectedMealSlot = entry.mealSlot
                                 selectedRecipeId = entry.recipeId
                             }) {
-                                Text(text = "Edit")
+                                Text(text = stringResource(R.string.button_edit))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(onClick = { viewModel.deletePlanEntry(entry.id) }) {
-                                Text(text = "Delete")
+                                Text(text = stringResource(R.string.button_delete))
                             }
                         }
                     }

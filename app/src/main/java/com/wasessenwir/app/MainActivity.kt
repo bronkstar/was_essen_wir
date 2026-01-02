@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.ui.screens.AppScreen
 import com.wasessenwir.app.ui.theme.WasEssenWirTheme
@@ -33,7 +34,7 @@ private fun WasEssenWirApp() {
     val viewModel: AppViewModel = viewModel()
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "was_essen_wir") })
+            TopAppBar(title = { Text(text = stringResource(R.string.app_name)) })
         }
     ) { padding ->
         AppScreen(viewModel = viewModel, modifier = Modifier.padding(padding))

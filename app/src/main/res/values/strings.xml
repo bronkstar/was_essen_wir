@@ -1,3 +1,48 @@
 <resources>
     <string name="app_name">was_essen_wir</string>
+    <string name="tab_households">Haushalte</string>
+    <string name="tab_recipes">Rezepte</string>
+    <string name="tab_plan">Plan</string>
+    <string name="tab_shopping">Einkaufsliste</string>
+
+    <string name="active_household">Aktiver Haushalt: %1$s</string>
+    <string name="household_name_label">Haushaltsname</string>
+    <string name="household_rename_label">Haushalt umbenennen</string>
+    <string name="button_create">Erstellen</string>
+    <string name="button_save">Speichern</string>
+    <string name="button_cancel">Abbrechen</string>
+    <string name="button_set_active">Aktiv setzen</string>
+    <string name="button_edit">Bearbeiten</string>
+    <string name="button_delete">Loeschen</string>
+    <string name="household_id_label">Id: %1$s</string>
+    <string name="household_members_label">Mitglieder: %1$d</string>
+
+    <string name="needs_active_household">Bitte zuerst einen Haushalt aktiv setzen.</string>
+
+    <string name="recipe_title">Rezept</string>
+    <string name="recipe_name_label">Name</string>
+    <string name="recipe_servings_label">Portionen</string>
+    <string name="ingredients_title">Zutaten</string>
+    <string name="ingredient_name_label">Zutatenname</string>
+    <string name="ingredient_amount_label">Menge</string>
+    <string name="ingredient_unit_label">Einheit</string>
+    <string name="button_add_ingredient">Zutat hinzufuegen</string>
+    <string name="recipe_servings_value">Portionen: %1$d</string>
+    <string name="recipe_ingredients_count">Zutaten: %1$d</string>
+
+    <string name="plan_entry_title">Planeintrag</string>
+    <string name="plan_date_label">Datum (JJJJ-MM-TT)</string>
+    <string name="meal_lunch">Mittag</string>
+    <string name="meal_dinner">Abend</string>
+    <string name="selected_recipe_label">Ausgewaehltes Rezept: %1$s</string>
+    <string name="button_select">Auswaehlen</string>
+    <string name="plan_recipe_label">Rezept: %1$s</string>
+
+    <string name="shopping_title">Einkaufsliste (Snapshot)</string>
+    <string name="week_start_label">Wochenstart (JJJJ-MM-TT)</string>
+    <string name="item_name_label">Artikelname</string>
+    <string name="button_add_item">Artikel hinzufuegen</string>
+    <string name="shopping_week_label">Woche: %1$s</string>
+    <string name="label_have_it">Habe ich</string>
+    <string name="label_checked">Erledigt</string>
 </resources>
