@@ -8,7 +8,7 @@
 - WSL
 - Java: /home/bjoern/android-studio/jbr (OpenJDK 21)
 - Gradle: 8.14 (Wrapper)
-- Android Gradle Plugin: 8.5.2
+- Android Gradle Plugin: 8.11.1
 - compileSdk/targetSdk: 36
 
 ## Automated Tests
@@ -23,8 +23,10 @@ PATH=/home/bjoern/android-studio/jbr/bin:$PATH \
 Result: PASS
 
 Warnings:
-- AGP 8.5.2 ist nur bis compileSdk 34 getestet (compileSdk 36 gesetzt).
 - Kotlin Opt-In Warnungen in `app/src/main/java/com/wasessenwir/app/ui/AppViewModel.kt` (ExperimentalCoroutinesApi).
+
+## Retest (nach AGP-Upgrade)
+- AGP auf 8.11.1 aktualisiert, `android.suppressUnsupportedCompileSdk=36` gesetzt.
 
 ## Manual Smoke Tests
 - Nicht ausgefuehrt (UI-Tests in App noch offen).
