@@ -166,23 +166,32 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                         Spacer(modifier = Modifier.height(8.dp))
                         list.items.forEachIndexed { index, item ->
                             Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(text = "${item.amount} ${item.unit} ${item.name}", modifier = Modifier.weight(1f))
-                                Checkbox(
-                                    checked = item.haveIt,
-                                    onCheckedChange = { checked ->
-                                        val updated = list.items.toMutableList()
-                                        updated[index] = item.copy(haveIt = checked)
-                                        viewModel.updateShoppingList(list.copy(items = updated))
-                                    }
+                                Text(
+                                    text = "${item.amount} ${item.unit} ${item.name}",
+                                    modifier = Modifier.weight(1f)
                                 )
-                                Checkbox(
-                                    checked = item.checked,
-                                    onCheckedChange = { checked ->
-                                        val updated = list.items.toMutableList()
-                                        updated[index] = item.copy(checked = checked)
-                                        viewModel.updateShoppingList(list.copy(items = updated))
-                                    }
-                                )
+                                Column(modifier = Modifier.padding(end = 8.dp)) {
+                                    Text(text = "Have it", style = MaterialTheme.typography.labelSmall)
+                                    Checkbox(
+                                        checked = item.haveIt,
+                                        onCheckedChange = { checked ->
+                                            val updated = list.items.toMutableList()
+                                            updated[index] = item.copy(haveIt = checked)
+                                            viewModel.updateShoppingList(list.copy(items = updated))
+                                        }
+                                    )
+                                }
+                                Column {
+                                    Text(text = "Checked", style = MaterialTheme.typography.labelSmall)
+                                    Checkbox(
+                                        checked = item.checked,
+                                        onCheckedChange = { checked ->
+                                            val updated = list.items.toMutableList()
+                                            updated[index] = item.copy(checked = checked)
+                                            viewModel.updateShoppingList(list.copy(items = updated))
+                                        }
+                                    )
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
