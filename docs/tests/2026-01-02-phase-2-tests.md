@@ -32,7 +32,9 @@ Warnings:
 - `./gradlew test` PASS
 
 ## Manual Smoke Tests
-- Nicht ausgefuehrt (UI-Tests in App noch offen).
+- Blockiert: App stuerzte beim Start wegen Firebase Auth `CONFIGURATION_NOT_FOUND`.
+- Fix: Fehlerhandling in Auth eingefuegt, damit App nicht crasht.
+- Manuelle Smoke Tests: ausstehend (nach Update der App auf dem Geraet).
 
 ## Empfehlungen
 1) AGP upgraden oder `android.suppressUnsupportedCompileSdk=36` setzen.

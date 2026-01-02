@@ -29,6 +29,9 @@ class AppViewModel(
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId: StateFlow<String?> = _currentUserId
 
+    private val _authError = MutableStateFlow<String?>(null)
+    val authError: StateFlow<String?> = _authError
+
     private val _activeHouseholdId = MutableStateFlow<String?>(null)
     val activeHouseholdId: StateFlow<String?> = _activeHouseholdId
 
@@ -143,9 +146,14 @@ class AppViewModel(
     }
 
     private suspend fun ensureSignedIn() {
-        if (auth.currentUser == null) {
-            auth.signInAnonymously().await()
+        try {
+            if (auth.currentUser == null) {
+                auth.signInAnonymously().await()
+            }
+            _currentUserId.value = auth.currentUser?.uid
+            _authError.value = null
+        } catch (ex: Exception) {
+            _authError.value = "Firebase Auth fehlgeschlagen: ${ex.message ?: ex::class.java.simpleName}"
         }
-        _currentUserId.value = auth.currentUser?.uid
     }
 }
