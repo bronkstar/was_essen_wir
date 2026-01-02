@@ -21,6 +21,7 @@ einfach zu teilen.
 1) Android Studio installieren
 2) Repo oeffnen: `/home/bjoern/was_essen_wir`
 3) Gradle Sync abwarten
+   - Hinweis: falls der Gradle Wrapper fehlt, einmal "Sync Project with Gradle Files" ausfuehren.
 4) Emulator oder Device verbinden
 5) App aus Android Studio starten
 
