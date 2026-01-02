@@ -11,6 +11,7 @@ import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.data.model.ShoppingItem
 import com.wasessenwir.app.data.model.ShoppingList
 import com.wasessenwir.app.data.repo.FirestoreRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppViewModel(
     private val repository: FirestoreRepository = FirestoreRepository(),
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()

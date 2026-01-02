@@ -23,7 +23,7 @@ PATH=/home/bjoern/android-studio/jbr/bin:$PATH \
 Result: PASS
 
 Warnings:
-- Kotlin Opt-In Warnungen in `app/src/main/java/com/wasessenwir/app/ui/AppViewModel.kt` (ExperimentalCoroutinesApi).
+- Kotlin Opt-In Warnungen in `app/src/main/java/com/wasessenwir/app/ui/AppViewModel.kt` (ExperimentalCoroutinesApi). (behoben durch Opt-In)
 
 ## Retest (nach AGP-Upgrade)
 - AGP auf 8.11.1 aktualisiert, `android.suppressUnsupportedCompileSdk=36` gesetzt.
