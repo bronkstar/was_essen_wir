@@ -27,6 +27,9 @@ Warnings:
 
 ## Retest (nach AGP-Upgrade)
 - AGP auf 8.11.1 aktualisiert, `android.suppressUnsupportedCompileSdk=36` gesetzt.
+## Retest (Opt-In)
+- `@OptIn(ExperimentalCoroutinesApi::class)` in `app/src/main/java/com/wasessenwir/app/ui/AppViewModel.kt` gesetzt.
+- `./gradlew test` PASS
 
 ## Manual Smoke Tests
 - Nicht ausgefuehrt (UI-Tests in App noch offen).
