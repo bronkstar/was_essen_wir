@@ -78,6 +78,13 @@
     <string name="plan_recipe_label">Rezept: %1$s</string>
 
     <string name="shopping_title">Einkaufsliste (Snapshot)</string>
+    <string name="shopping_select_list_label">Liste auswaehlen</string>
+    <string name="shopping_no_lists">Keine Einkaufslisten vorhanden. Bitte im Plan erstellen.</string>
+    <string name="shopping_no_selection">Keine Liste ausgewaehlt.</string>
+    <string name="shopping_unit_hint">Info: Ab 1000 g/ml wird in kg/l angezeigt.</string>
+    <string name="shopping_summary_title">Einkaufsliste (Checked)</string>
+    <string name="shopping_items_title">Zutaten (Gesamt)</string>
+    <string name="shopping_add_item_title">Zutat hinzufuegen</string>
     <string name="week_start_label">Wochenstart (TT.MM.JJJJ)</string>
     <string name="button_pick_date">Datum waehlen</string>
     <string name="button_generate_from_plan">Liste aus Plan erzeugen</string>
@@ -86,5 +93,5 @@
     <string name="button_add_item">Artikel hinzufuegen</string>
     <string name="shopping_week_label">Woche: %1$s</string>
     <string name="label_have_it">Habe ich</string>
-    <string name="label_checked">Erledigt</string>
+    <string name="label_checked">Einkaufen</string>
 </resources>
