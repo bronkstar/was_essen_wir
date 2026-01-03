@@ -1,7 +1,6 @@
 package com.wasessenwir.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,7 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.clickable
 import com.wasessenwir.app.R
 import com.wasessenwir.app.data.model.MealSlot
 import com.wasessenwir.app.data.model.MealType
@@ -174,13 +173,7 @@ fun PlanScreen(viewModel: AppViewModel) {
 
         Row {
             Column(modifier = Modifier.weight(1f)) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .pointerInput(Unit) {
-                            detectTapGestures { showStartPicker = true }
-                        }
-                ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = startDisplay,
                         onValueChange = { },
@@ -188,24 +181,28 @@ fun PlanScreen(viewModel: AppViewModel) {
                         label = { Text(text = stringResource(R.string.plan_range_start_label)) },
                         readOnly = true
                     )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showStartPicker = true }
+                    )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .pointerInput(Unit) {
-                            detectTapGestures { showEndPicker = true }
-                        }
-                ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = endDisplay,
                         onValueChange = { },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(text = stringResource(R.string.plan_range_end_label)) },
                         readOnly = true
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showEndPicker = true }
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
