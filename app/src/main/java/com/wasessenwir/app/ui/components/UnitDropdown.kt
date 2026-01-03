@@ -22,7 +22,7 @@ fun UnitDropdown(
     label: String,
     modifier: Modifier = Modifier
 ) {
-    val units = listOf("g", "kg", "ml", "l", "Stk")
+    val units = listOf("g", "kg", "ml", "l", "Stk", "Dose")
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
