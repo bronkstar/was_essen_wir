@@ -1,5 +1,6 @@
 package com.wasessenwir.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,11 +24,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.clickable
 import com.wasessenwir.app.R
 import com.wasessenwir.app.data.model.MealSlot
 import com.wasessenwir.app.data.model.MealType
@@ -67,6 +69,7 @@ fun PlanScreen(viewModel: AppViewModel) {
     var showStartPicker by remember { mutableStateOf(false) }
     var showEndPicker by remember { mutableStateOf(false) }
     var planningActive by remember { mutableStateOf(false) }
+    var showPlannerSheet by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var mealFilter by remember { mutableStateOf(MealType.BOTH) }
 
@@ -76,6 +79,7 @@ fun PlanScreen(viewModel: AppViewModel) {
 
     val startPickerState = rememberDatePickerState()
     val endPickerState = rememberDatePickerState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isoFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
     val displayFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
 
@@ -89,8 +93,8 @@ fun PlanScreen(viewModel: AppViewModel) {
                 emptyList()
             } else {
                 val dates = mutableListOf<LocalDate>()
-                var cursor = start!!
-                val endDate = end!!
+                var cursor = start
+                val endDate = end
                 while (!cursor.isAfter(endDate)) {
                     dates.add(cursor)
                     cursor = cursor.plusDays(1)
@@ -215,47 +219,56 @@ fun PlanScreen(viewModel: AppViewModel) {
             text = stringResource(R.string.button_create_list),
             onClick = {
                 if (startIso.isNotBlank() && endIso.isNotBlank()) {
-                    planningActive = true
-                    initializedRangeKey = ""
+                    if (!planningActive) {
+                        planningActive = true
+                        initializedRangeKey = ""
+                    }
+                    showPlannerSheet = true
                 }
             }
         )
+    }
 
-        if (!planningActive || rangeDates.isEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
-        } else {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = stringResource(R.string.plan_recipe_pick_title), style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row {
-                SegmentedChoicePlan(
-                    text = stringResource(R.string.meal_all),
-                    selected = mealFilter == MealType.BOTH,
-                    onClick = { mealFilter = MealType.BOTH }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                SegmentedChoicePlan(
-                    text = stringResource(R.string.meal_lunch),
-                    selected = mealFilter == MealType.LUNCH,
-                    onClick = { mealFilter = MealType.LUNCH }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                SegmentedChoicePlan(
-                    text = stringResource(R.string.meal_dinner),
-                    selected = mealFilter == MealType.DINNER,
-                    onClick = { mealFilter = MealType.DINNER }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (recentRecipes.isNotEmpty()) {
-                Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    recentRecipes.forEach { recipe ->
+    if (showPlannerSheet && planningActive && rangeDates.isNotEmpty()) {
+        ModalBottomSheet(
+            onDismissRequest = { showPlannerSheet = false },
+            sheetState = sheetState
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    Text(text = stringResource(R.string.plan_recipe_pick_title), style = MaterialTheme.typography.titleMedium)
+                }
+                item {
+                    Row {
+                        SegmentedChoicePlan(
+                            text = stringResource(R.string.meal_all),
+                            selected = mealFilter == MealType.BOTH,
+                            onClick = { mealFilter = MealType.BOTH }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        SegmentedChoicePlan(
+                            text = stringResource(R.string.meal_lunch),
+                            selected = mealFilter == MealType.LUNCH,
+                            onClick = { mealFilter = MealType.LUNCH }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        SegmentedChoicePlan(
+                            text = stringResource(R.string.meal_dinner),
+                            selected = mealFilter == MealType.DINNER,
+                            onClick = { mealFilter = MealType.DINNER }
+                        )
+                    }
+                }
+                if (recentRecipes.isNotEmpty()) {
+                    item {
+                        Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
+                    }
+                    items(recentRecipes, key = { it.id }) { recipe ->
                         RecipeToggleRow(
                             recipe = recipe,
                             selected = selectedRecipeIds.contains(recipe.id),
@@ -263,24 +276,14 @@ fun PlanScreen(viewModel: AppViewModel) {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(text = stringResource(R.string.recipe_search_label)) }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 220.dp)
-            ) {
+                item {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(R.string.recipe_search_label)) }
+                    )
+                }
                 if (filteredRecipes.isEmpty()) {
                     item {
                         Text(text = stringResource(R.string.recipe_search_empty))
@@ -294,25 +297,16 @@ fun PlanScreen(viewModel: AppViewModel) {
                         )
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = stringResource(R.string.plan_assignment_title), style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (completionLabel.isNotBlank()) {
-                Text(text = completionLabel, style = MaterialTheme.typography.bodySmall)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                items(rangeDates) { date ->
+                item {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = stringResource(R.string.plan_assignment_title), style = MaterialTheme.typography.titleMedium)
+                }
+                if (completionLabel.isNotBlank()) {
+                    item {
+                        Text(text = completionLabel, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                items(rangeDates, key = { it.format(isoFormatter) }) { date ->
                     val dateIso = date.format(isoFormatter)
                     val dateLabel = date.format(displayFormatter)
                     val lunchKey = entryKey(dateIso, MealSlot.LUNCH)
@@ -351,35 +345,41 @@ fun PlanScreen(viewModel: AppViewModel) {
                         }
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            PrimaryButton(
-                text = stringResource(R.string.plan_save_button),
-                onClick = {
-                    val entriesByKey = planEntries.associateBy { entryKey(it.date, it.mealSlot) }
-                    rangeDates.forEach { date ->
-                        val dateIso = date.format(isoFormatter)
-                        listOf(MealSlot.LUNCH, MealSlot.DINNER).forEach { slot ->
-                            val key = entryKey(dateIso, slot)
-                            val selectedId = slotSelections[key]
-                            val existing = entriesByKey[key]
-                            if (selectedId.isNullOrBlank()) {
-                                if (existing != null) {
-                                    viewModel.deletePlanEntry(existing.id)
+                item {
+                    Row {
+                        PrimaryButton(
+                            text = stringResource(R.string.plan_save_button),
+                            onClick = {
+                                val entriesByKey = planEntries.associateBy { entryKey(it.date, it.mealSlot) }
+                                rangeDates.forEach { date ->
+                                    val dateIso = date.format(isoFormatter)
+                                    listOf(MealSlot.LUNCH, MealSlot.DINNER).forEach { slot ->
+                                        val key = entryKey(dateIso, slot)
+                                        val selectedId = slotSelections[key]
+                                        val existing = entriesByKey[key]
+                                        if (selectedId.isNullOrBlank()) {
+                                            if (existing != null) {
+                                                viewModel.deletePlanEntry(existing.id)
+                                            }
+                                        } else {
+                                            if (existing == null) {
+                                                viewModel.createPlanEntry(dateIso, slot, selectedId)
+                                            } else if (existing.recipeId != selectedId) {
+                                                viewModel.updatePlanEntry(existing.copy(recipeId = selectedId))
+                                            }
+                                        }
+                                    }
                                 }
-                            } else {
-                                if (existing == null) {
-                                    viewModel.createPlanEntry(dateIso, slot, selectedId)
-                                } else if (existing.recipeId != selectedId) {
-                                    viewModel.updatePlanEntry(existing.copy(recipeId = selectedId))
-                                }
+                                showPlannerSheet = false
                             }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedButton(onClick = { showPlannerSheet = false }) {
+                            Text(text = stringResource(R.string.button_close))
                         }
                     }
                 }
-            )
+            }
         }
     }
 

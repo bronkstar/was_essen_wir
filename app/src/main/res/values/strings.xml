@@ -64,6 +64,7 @@
     <string name="plan_no_selection">Keine Auswahl</string>
     <string name="button_add_to_list">Zur Liste</string>
     <string name="button_remove_from_list">Aus Liste</string>
+    <string name="button_close">Schliessen</string>
     <string name="button_save_only">Speichern</string>
     <string name="selected_recipe_label">Ausgewaehltes Rezept: %1$s</string>
     <string name="button_select">Auswaehlen</string>
