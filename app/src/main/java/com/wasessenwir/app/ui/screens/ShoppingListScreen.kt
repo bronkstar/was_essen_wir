@@ -43,6 +43,7 @@ import java.time.format.DateTimeFormatter
 import com.wasessenwir.app.ui.components.PrimaryButton
 import java.time.LocalDate
 import androidx.compose.foundation.clickable
+import com.wasessenwir.app.ui.components.UnitDropdown
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +57,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
     var weekStartDisplay by remember { mutableStateOf("") }
     var itemName by remember { mutableStateOf("") }
     var itemAmount by remember { mutableStateOf("") }
-    var itemUnit by remember { mutableStateOf("") }
+    var itemUnit by remember { mutableStateOf("g") }
     val draftItems = remember { mutableStateListOf<ShoppingItem>() }
 
     var editingList by remember { mutableStateOf<ShoppingList?>(null) }
@@ -125,11 +126,11 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                 label = { Text(text = stringResource(R.string.ingredient_amount_label)) }
             )
             Spacer(modifier = Modifier.width(8.dp))
-            OutlinedTextField(
+            UnitDropdown(
                 value = itemUnit,
                 onValueChange = { itemUnit = it },
-                modifier = Modifier.weight(1f),
-                label = { Text(text = stringResource(R.string.ingredient_unit_label)) }
+                label = stringResource(R.string.ingredient_unit_label),
+                modifier = Modifier.weight(1f)
             )
         }
 
@@ -142,7 +143,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                 draftItems.add(ShoppingItem(trimmed, amount, itemUnit.trim(), haveIt = false, checked = false))
                 itemName = ""
                 itemAmount = ""
-                itemUnit = ""
+                itemUnit = "g"
             }
         }) {
             Text(text = stringResource(R.string.button_add_item))

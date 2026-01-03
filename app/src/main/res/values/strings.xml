@@ -20,6 +20,10 @@
     <string name="needs_active_household">Bitte zuerst einen Haushalt aktiv setzen.</string>
 
     <string name="recipe_title">Rezept</string>
+    <string name="recipe_create_title">Rezept erstellen</string>
+    <string name="recipe_list_title">Rezept-Liste</string>
+    <string name="recipe_search_label">Rezept suchen</string>
+    <string name="recipe_filter_all">Alle</string>
     <string name="recipe_name_label">Name</string>
     <string name="recipe_servings_label">Portionen</string>
     <string name="recipe_meal_type_label">Mahlzeit</string>
@@ -31,6 +35,7 @@
     <string name="ingredient_amount_label">Menge</string>
     <string name="ingredient_unit_label">Einheit</string>
     <string name="button_add_ingredient">Zutat hinzufuegen</string>
+    <string name="button_save_recipe">Rezept speichern</string>
     <string name="recipe_servings_value">Portionen: %1$d</string>
     <string name="recipe_ingredients_count">Zutaten: %1$d</string>
 
