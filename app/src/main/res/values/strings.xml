@@ -22,6 +22,10 @@
     <string name="recipe_title">Rezept</string>
     <string name="recipe_name_label">Name</string>
     <string name="recipe_servings_label">Portionen</string>
+    <string name="recipe_meal_type_label">Mahlzeit</string>
+    <string name="recipe_meal_lunch">Mittag</string>
+    <string name="recipe_meal_dinner">Abend</string>
+    <string name="recipe_meal_both">Beides</string>
     <string name="ingredients_title">Zutaten</string>
     <string name="ingredient_name_label">Zutatenname</string>
     <string name="ingredient_amount_label">Menge</string>
@@ -34,6 +38,7 @@
     <string name="plan_date_label">Datum (TT.MM.JJJJ)</string>
     <string name="meal_lunch">Mittag</string>
     <string name="meal_dinner">Abend</string>
+    <string name="button_save_only">Speichern</string>
     <string name="selected_recipe_label">Ausgewaehltes Rezept: %1$s</string>
     <string name="button_select">Auswaehlen</string>
     <string name="plan_recipe_label">Rezept: %1$s</string>

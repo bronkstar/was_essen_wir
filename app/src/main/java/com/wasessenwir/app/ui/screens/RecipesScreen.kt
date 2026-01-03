@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.data.model.Ingredient
+import com.wasessenwir.app.data.model.MealType
 import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.R
@@ -40,6 +41,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
 
     var name by remember { mutableStateOf("") }
     var servingsText by remember { mutableStateOf("2") }
+    var mealType by remember { mutableStateOf(MealType.BOTH) }
     var ingredientName by remember { mutableStateOf("") }
     var ingredientAmount by remember { mutableStateOf("") }
     var ingredientUnit by remember { mutableStateOf("") }
@@ -76,6 +78,26 @@ fun RecipesScreen(viewModel: AppViewModel) {
             modifier = Modifier.fillMaxWidth(),
             label = { Text(text = stringResource(R.string.recipe_servings_label)) }
         )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(text = stringResource(R.string.recipe_meal_type_label), style = MaterialTheme.typography.labelMedium)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row {
+            OutlinedButton(onClick = { mealType = MealType.LUNCH }) {
+                Text(text = stringResource(R.string.recipe_meal_lunch))
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(onClick = { mealType = MealType.DINNER }) {
+                Text(text = stringResource(R.string.recipe_meal_dinner))
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(onClick = { mealType = MealType.BOTH }) {
+                Text(text = stringResource(R.string.recipe_meal_both))
+            }
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -143,24 +165,26 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     val servings = servingsText.toIntOrNull() ?: 0
                     if (trimmed.isNotEmpty()) {
                         if (editingRecipe == null) {
-                            viewModel.createRecipe(trimmed, servings, draftIngredients.toList())
-                        } else {
-                            val existing = editingRecipe!!
-                            viewModel.updateRecipe(
-                                existing.copy(
-                                    name = trimmed,
-                                    servings = servings,
-                                    ingredients = draftIngredients.toList()
-                                )
+                        viewModel.createRecipe(trimmed, servings, draftIngredients.toList(), mealType)
+                    } else {
+                        val existing = editingRecipe!!
+                        viewModel.updateRecipe(
+                            existing.copy(
+                                name = trimmed,
+                                servings = servings,
+                                ingredients = draftIngredients.toList(),
+                                mealType = mealType
                             )
-                        }
-                        name = ""
-                        servingsText = "2"
-                        draftIngredients.clear()
-                        editingRecipe = null
+                        )
                     }
+                    name = ""
+                    servingsText = "2"
+                    draftIngredients.clear()
+                    mealType = MealType.BOTH
+                    editingRecipe = null
                 }
-            )
+            }
+        )
 
             if (editingRecipe != null) {
                 Spacer(modifier = Modifier.width(8.dp))
@@ -169,6 +193,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     name = ""
                     servingsText = "2"
                     draftIngredients.clear()
+                    mealType = MealType.BOTH
                 }) {
                     Text(text = stringResource(R.string.button_cancel))
                 }
@@ -205,6 +230,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                                 servingsText = recipe.servings.toString()
                                 draftIngredients.clear()
                                 draftIngredients.addAll(recipe.ingredients)
+                                mealType = recipe.mealType
                             }) {
                                 Text(text = stringResource(R.string.button_edit))
                             }

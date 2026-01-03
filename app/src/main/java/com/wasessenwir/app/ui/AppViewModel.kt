@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.wasessenwir.app.data.model.Household
 import com.wasessenwir.app.data.model.Ingredient
 import com.wasessenwir.app.data.model.MealSlot
+import com.wasessenwir.app.data.model.MealType
 import com.wasessenwir.app.data.model.PlanEntry
 import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.data.model.ShoppingItem
@@ -90,10 +91,10 @@ class AppViewModel(
         }
     }
 
-    fun createRecipe(name: String, servings: Int, ingredients: List<Ingredient>) {
+    fun createRecipe(name: String, servings: Int, ingredients: List<Ingredient>, mealType: MealType) {
         val householdId = _activeHouseholdId.value ?: return
         viewModelScope.launch {
-            repository.createRecipe(householdId, name, servings, ingredients)
+            repository.createRecipe(householdId, name, servings, ingredients, mealType)
         }
     }
 

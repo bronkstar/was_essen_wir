@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.wasessenwir.app.data.model.Household
 import com.wasessenwir.app.data.model.Ingredient
 import com.wasessenwir.app.data.model.MealSlot
+import com.wasessenwir.app.data.model.MealType
 import com.wasessenwir.app.data.model.PlanEntry
 import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.data.model.ShoppingItem
@@ -70,7 +71,13 @@ class FirestoreRepository(
         awaitClose { registration.remove() }
     }
 
-    suspend fun createRecipe(householdId: String, name: String, servings: Int, ingredients: List<Ingredient>): String {
+    suspend fun createRecipe(
+        householdId: String,
+        name: String,
+        servings: Int,
+        ingredients: List<Ingredient>,
+        mealType: MealType
+    ): String {
         val now = System.currentTimeMillis()
         val doc = recipes.document()
         val data = mapOf(
@@ -78,6 +85,7 @@ class FirestoreRepository(
             "name" to name,
             "servings" to servings,
             "ingredients" to ingredients.map { ingredientToMap(it) },
+            "mealType" to mealType.name,
             "createdAt" to now,
             "updatedAt" to now
         )
@@ -91,6 +99,7 @@ class FirestoreRepository(
             "name" to recipe.name,
             "servings" to recipe.servings,
             "ingredients" to recipe.ingredients.map { ingredientToMap(it) },
+            "mealType" to recipe.mealType.name,
             "updatedAt" to System.currentTimeMillis()
         )
         recipes.document(recipe.id).update(data).await()
@@ -118,12 +127,15 @@ class FirestoreRepository(
                     val createdAt = (doc.get("createdAt") as? Number)?.toLong() ?: 0L
                     val updatedAt = (doc.get("updatedAt") as? Number)?.toLong() ?: 0L
                     val household = doc.getString("householdId") ?: householdId
+                    val mealTypeRaw = doc.getString("mealType") ?: MealType.BOTH.name
+                    val mealType = parseMealType(mealTypeRaw)
                     Recipe(
                         id = doc.id,
                         householdId = household,
                         name = name,
                         servings = servings,
                         ingredients = ingredients,
+                        mealType = mealType,
                         createdAt = createdAt,
                         updatedAt = updatedAt
                     )
@@ -275,5 +287,11 @@ class FirestoreRepository(
         MealSlot.valueOf(value)
     } catch (ex: IllegalArgumentException) {
         MealSlot.LUNCH
+    }
+
+    private fun parseMealType(value: String): MealType = try {
+        MealType.valueOf(value)
+    } catch (ex: IllegalArgumentException) {
+        MealType.BOTH
     }
 }

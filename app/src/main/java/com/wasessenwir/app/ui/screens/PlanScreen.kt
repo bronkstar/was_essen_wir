@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.data.model.MealSlot
+import com.wasessenwir.app.data.model.MealType
 import com.wasessenwir.app.data.model.PlanEntry
 import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.R
@@ -60,7 +61,13 @@ fun PlanScreen(viewModel: AppViewModel) {
     val isoFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
     val displayFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
 
-    val selectedRecipe = recipes.firstOrNull { it.id == selectedRecipeId }
+    val filteredRecipes = recipes.filter { recipe ->
+        when (selectedMealSlot) {
+            MealSlot.LUNCH -> recipe.mealType == MealType.LUNCH || recipe.mealType == MealType.BOTH
+            MealSlot.DINNER -> recipe.mealType == MealType.DINNER || recipe.mealType == MealType.BOTH
+        }
+    }
+    val selectedRecipe = filteredRecipes.firstOrNull { it.id == selectedRecipeId }
 
     Column(
         modifier = Modifier
@@ -122,7 +129,7 @@ fun PlanScreen(viewModel: AppViewModel) {
                 .fillMaxWidth()
                 .heightIn(max = 200.dp)
         ) {
-            items(recipes, key = { it.id }) { recipe ->
+            items(filteredRecipes, key = { it.id }) { recipe ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -144,9 +151,7 @@ fun PlanScreen(viewModel: AppViewModel) {
 
         Row {
             PrimaryButton(
-                text = stringResource(
-                    if (editingEntry == null) R.string.button_create else R.string.button_save
-                ),
+                text = stringResource(R.string.button_save_only),
                 onClick = {
                     val recipeId = selectedRecipeId
                     if (dateIso.isNotEmpty() && recipeId != null) {
