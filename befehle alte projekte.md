@@ -25,6 +25,11 @@ Optional trennen:
 & "C:\Program Files\usbipd-win\usbipd.exe" detach --busid 1-6
 ```
 
+Android Studio starten (WSL/Linux):
+```bash
+/home/bjoern/android-studio/bin/studio.sh
+```
+
 ## WSL (Linux)
 
 ADB Devices anzeigen:
