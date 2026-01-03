@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppViewModel(
@@ -133,6 +135,16 @@ class AppViewModel(
         }
     }
 
+    fun createShoppingListFromPlan(weekStart: String, plan: List<PlanEntry>, recipes: List<Recipe>) {
+        val householdId = _activeHouseholdId.value ?: return
+        viewModelScope.launch {
+            val items = aggregateShoppingItems(weekStart, plan, recipes)
+            if (items.isNotEmpty()) {
+                repository.createShoppingList(householdId, weekStart, items)
+            }
+        }
+    }
+
     fun updateShoppingList(shoppingList: ShoppingList) {
         viewModelScope.launch {
             repository.updateShoppingList(shoppingList)
@@ -155,5 +167,43 @@ class AppViewModel(
         } catch (ex: Exception) {
             _authError.value = "Firebase Auth fehlgeschlagen: ${ex.message ?: ex::class.java.simpleName}"
         }
+    }
+
+    private fun aggregateShoppingItems(
+        weekStart: String,
+        plan: List<PlanEntry>,
+        recipes: List<Recipe>
+    ): List<ShoppingItem> {
+        val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+        val startDate = runCatching { LocalDate.parse(weekStart, formatter) }.getOrNull() ?: return emptyList()
+        val endDate = startDate.plusDays(6)
+        val recipeById = recipes.associateBy { it.id }
+        val aggregated = linkedMapOf<String, ShoppingItem>()
+
+        plan.filter { entry ->
+            val entryDate = runCatching { LocalDate.parse(entry.date, formatter) }.getOrNull()
+            entryDate != null && !entryDate.isBefore(startDate) && !entryDate.isAfter(endDate)
+        }.forEach { entry ->
+            val recipe = recipeById[entry.recipeId] ?: return@forEach
+            recipe.ingredients.forEach { ingredient ->
+                val name = ingredient.name.trim()
+                val unit = ingredient.unit.trim()
+                val key = "${name.lowercase()}|${unit.lowercase()}"
+                val existing = aggregated[key]
+                if (existing == null) {
+                    aggregated[key] = ShoppingItem(
+                        name = name,
+                        amount = ingredient.amount,
+                        unit = unit,
+                        haveIt = false,
+                        checked = false
+                    )
+                } else {
+                    aggregated[key] = existing.copy(amount = existing.amount + ingredient.amount)
+                }
+            }
+        }
+
+        return aggregated.values.toList()
     }
 }

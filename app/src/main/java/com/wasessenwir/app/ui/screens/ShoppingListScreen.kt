@@ -31,10 +31,21 @@ import com.wasessenwir.app.data.model.ShoppingItem
 import com.wasessenwir.app.data.model.ShoppingList
 import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.R
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(viewModel: AppViewModel) {
     val shoppingLists by viewModel.shoppingLists.collectAsState()
+    val planEntries by viewModel.planEntries.collectAsState()
+    val recipes by viewModel.recipes.collectAsState()
     val activeHouseholdId by viewModel.activeHouseholdId.collectAsState()
 
     var weekStart by remember { mutableStateOf("") }
@@ -44,6 +55,9 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
     val draftItems = remember { mutableStateListOf<ShoppingItem>() }
 
     var editingList by remember { mutableStateOf<ShoppingList?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    val dateFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
 
     Column(
         modifier = Modifier
@@ -63,8 +77,26 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
             value = weekStart,
             onValueChange = { weekStart = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.week_start_label)) }
+            label = { Text(text = stringResource(R.string.week_start_label)) },
+            readOnly = true
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row {
+            Button(onClick = { showDatePicker = true }) {
+                Text(text = stringResource(R.string.button_pick_date))
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = {
+                val trimmedWeek = weekStart.trim()
+                if (trimmedWeek.isNotEmpty()) {
+                    viewModel.createShoppingListFromPlan(trimmedWeek, planEntries, recipes)
+                }
+            }) {
+                Text(text = stringResource(R.string.button_generate_from_plan))
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -224,6 +256,33 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                     }
                 }
             }
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val millis = datePickerState.selectedDateMillis
+                    if (millis != null) {
+                        val localDate = Instant.ofEpochMilli(millis)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                        weekStart = localDate.format(dateFormatter)
+                    }
+                    showDatePicker = false
+                }) {
+                    Text(text = stringResource(R.string.button_apply))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(text = stringResource(R.string.button_cancel))
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }

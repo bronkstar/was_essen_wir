@@ -40,6 +40,9 @@
 
     <string name="shopping_title">Einkaufsliste (Snapshot)</string>
     <string name="week_start_label">Wochenstart (JJJJ-MM-TT)</string>
+    <string name="button_pick_date">Datum waehlen</string>
+    <string name="button_generate_from_plan">Liste aus Plan erzeugen</string>
+    <string name="button_apply">Uebernehmen</string>
     <string name="item_name_label">Artikelname</string>
     <string name="button_add_item">Artikel hinzufuegen</string>
     <string name="shopping_week_label">Woche: %1$s</string>
