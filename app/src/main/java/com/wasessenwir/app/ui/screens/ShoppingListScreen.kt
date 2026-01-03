@@ -42,6 +42,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import com.wasessenwir.app.ui.components.PrimaryButton
 import java.time.LocalDate
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +82,9 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
         OutlinedTextField(
             value = weekStartDisplay,
             onValueChange = { },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDatePicker = true },
             label = { Text(text = stringResource(R.string.week_start_label)) },
             readOnly = true
         )

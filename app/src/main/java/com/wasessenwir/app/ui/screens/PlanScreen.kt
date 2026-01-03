@@ -37,6 +37,7 @@ import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.R
 import com.wasessenwir.app.ui.components.PrimaryButton
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.foundation.clickable
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -78,7 +79,9 @@ fun PlanScreen(viewModel: AppViewModel) {
         OutlinedTextField(
             value = dateDisplay,
             onValueChange = { },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDatePicker = true },
             label = { Text(text = stringResource(R.string.plan_date_label)) },
             readOnly = true
         )
