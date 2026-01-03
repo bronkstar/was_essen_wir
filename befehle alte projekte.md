@@ -3,6 +3,19 @@
 Diese Befehle haben wir genutzt, um ein Android-Handy in WSL2 anzubinden
 und die App im Debug-Modus zu starten.
 
+  GRADLE_USER_HOME=/home/bjoern/was_essen_wir/.gradle \
+  JAVA_HOME=/home/bjoern/android-studio/jbr \
+  PATH=/home/bjoern/android-studio/jbr/bin:$PATH \
+  ./gradlew assembleDebug
+
+
+ /home/bjoern/Android/Sdk/platform-tools/adb -s RFCX10R039P install -r app/build/outputs/apk/debug/app-debug.apk
+
+   /home/bjoern/Android/Sdk/platform-tools/adb -s RFCX10R039P shell am start -n com.wasessenwir.app/.MainActivity
+
+
+
+
 ## PowerShell (Windows)
 
 USB-Devices anzeigen:
