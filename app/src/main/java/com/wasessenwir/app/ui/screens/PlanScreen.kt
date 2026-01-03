@@ -1,6 +1,8 @@
 package com.wasessenwir.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.pointer.pointerInput
 import com.wasessenwir.app.R
 import com.wasessenwir.app.data.model.MealSlot
 import com.wasessenwir.app.data.model.MealType
@@ -171,31 +174,41 @@ fun PlanScreen(viewModel: AppViewModel) {
 
         Row {
             Column(modifier = Modifier.weight(1f)) {
-                OutlinedTextField(
-                    value = startDisplay,
-                    onValueChange = { },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.plan_range_start_label)) },
-                    readOnly = true
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                OutlinedButton(onClick = { showStartPicker = true }) {
-                    Text(text = stringResource(R.string.button_pick_date))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectTapGestures { showStartPicker = true }
+                        }
+                ) {
+                    OutlinedTextField(
+                        value = startDisplay,
+                        onValueChange = { },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(R.string.plan_range_start_label)) },
+                        readOnly = true
+                    )
                 }
+                Spacer(modifier = Modifier.height(6.dp))
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                OutlinedTextField(
-                    value = endDisplay,
-                    onValueChange = { },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.plan_range_end_label)) },
-                    readOnly = true
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                OutlinedButton(onClick = { showEndPicker = true }) {
-                    Text(text = stringResource(R.string.button_pick_date))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectTapGestures { showEndPicker = true }
+                        }
+                ) {
+                    OutlinedTextField(
+                        value = endDisplay,
+                        onValueChange = { },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(R.string.plan_range_end_label)) },
+                        readOnly = true
+                    )
                 }
+                Spacer(modifier = Modifier.height(6.dp))
             }
         }
 
