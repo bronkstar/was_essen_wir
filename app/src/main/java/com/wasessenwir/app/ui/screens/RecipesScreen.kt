@@ -13,8 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ButtonDefaults
@@ -47,6 +45,7 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.wasessenwir.app.R
 import com.wasessenwir.app.data.model.Ingredient
@@ -131,10 +130,13 @@ fun RecipesScreen(viewModel: AppViewModel) {
         ingredientUnit = "g"
         editingIngredientIndex = null
         focusScope.launch {
-            listState.animateScrollToItem(
-                nameItemIndex,
-                animationSpec = tween(durationMillis = 520, easing = FastOutSlowInEasing)
-            )
+            val currentIndex = listState.firstVisibleItemIndex
+            if (currentIndex > nameItemIndex + 1) {
+                val midIndex = (currentIndex + nameItemIndex) / 2
+                listState.animateScrollToItem(midIndex)
+                delay(80)
+            }
+            listState.animateScrollToItem(nameItemIndex)
         }
     }
 
