@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,6 +60,26 @@ fun RecipesScreen(viewModel: AppViewModel) {
     var listFilter by remember { mutableStateOf<MealType?>(null) }
 
     val recentRecipes = recipes.sortedByDescending { it.updatedAt }.take(3)
+    val ingredientDefaults = remember(recipes) {
+        val byName = LinkedHashMap<String, Ingredient>()
+        recipes.sortedByDescending { it.updatedAt }.forEach { recipe ->
+            recipe.ingredients.forEach { ingredient ->
+                val key = ingredient.name.trim().lowercase()
+                if (key.isNotEmpty() && !byName.containsKey(key)) {
+                    byName[key] = ingredient
+                }
+            }
+        }
+        byName
+    }
+    val ingredientSuggestions = if (ingredientName.trim().length >= 2) {
+        val query = ingredientName.trim().lowercase()
+        ingredientDefaults.values
+            .filter { it.name.lowercase().contains(query) }
+            .take(6)
+    } else {
+        emptyList()
+    }
     val filteredRecipes = recipes.filter { recipe ->
         val matchesQuery = searchQuery.isBlank() || recipe.name.contains(searchQuery, ignoreCase = true) ||
             recipe.ingredients.any { it.name.contains(searchQuery, ignoreCase = true) }
@@ -138,6 +159,34 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = stringResource(R.string.ingredient_name_label)) }
             )
+        }
+
+        if (ingredientSuggestions.isNotEmpty()) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        ingredientSuggestions.forEach { suggestion ->
+                            Text(
+                                text = suggestion.name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        ingredientName = suggestion.name
+                                        ingredientUnit = suggestion.unit
+                                        if (suggestion.amount > 0.0) {
+                                            ingredientAmount = suggestion.amount.toString()
+                                        }
+                                    }
+                                    .padding(vertical = 8.dp, horizontal = 8.dp),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         item {
