@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ButtonDefaults
@@ -38,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -77,8 +78,6 @@ fun RecipesScreen(viewModel: AppViewModel) {
     val focusScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val nameItemIndex = 1
-    val density = LocalDensity.current
-    val bouncePx = with(density) { 12.dp.toPx() }.toInt()
     val nameFocus = remember { BringIntoViewRequester() }
     val servingsFocus = remember { BringIntoViewRequester() }
     val ingredientNameFocus = remember { BringIntoViewRequester() }
@@ -132,9 +131,10 @@ fun RecipesScreen(viewModel: AppViewModel) {
         ingredientUnit = "g"
         editingIngredientIndex = null
         focusScope.launch {
-            listState.animateScrollToItem(nameItemIndex)
-            listState.animateScrollToItem(nameItemIndex, bouncePx)
-            listState.animateScrollToItem(nameItemIndex, 0)
+            listState.animateScrollToItem(
+                nameItemIndex,
+                animationSpec = tween(durationMillis = 520, easing = FastOutSlowInEasing)
+            )
         }
     }
 
