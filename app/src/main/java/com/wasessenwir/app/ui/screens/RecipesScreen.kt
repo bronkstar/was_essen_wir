@@ -73,9 +73,9 @@ fun RecipesScreen(viewModel: AppViewModel) {
         byName
     }
     val ingredientSuggestions = if (ingredientName.trim().length >= 2) {
-        val query = ingredientName.trim().lowercase()
+        val query = ingredientName.trim()
         ingredientDefaults.values
-            .filter { it.name.lowercase().contains(query) }
+            .filter { matchesIngredientQuery(it.name, query) }
             .take(6)
     } else {
         emptyList()
@@ -400,5 +400,18 @@ private fun SegmentedChoice(
         )
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+private fun matchesIngredientQuery(name: String, query: String): Boolean {
+    val normalizedName = name.lowercase().replace(Regex("[^a-z0-9]+"), " ").trim()
+    val normalizedQuery = query.lowercase().replace(Regex("[^a-z0-9]+"), " ").trim()
+    if (normalizedQuery.isEmpty()) {
+        return true
+    }
+    val nameTokens = normalizedName.split(Regex("\\s+"))
+    val queryTokens = normalizedQuery.split(Regex("\\s+"))
+    return queryTokens.all { q ->
+        nameTokens.any { token -> token.contains(q) }
     }
 }

@@ -18,6 +18,13 @@
 - Screenshot-Import aus Cookidoo funktioniert inkl. Review/Korrektur.
 - Offline nutzbar, Sync nach Reconnect.
 
+## Feature-Idee: Vorrat -> Rezeptvorschlaege
+- Frage: "Welche Zutaten habe ich und was kann ich daraus machen?"
+- Ansatz: Nutzer pflegt einen Vorrat (Zutaten + Menge/Einheit).
+- System vergleicht Vorrat mit Rezeptzutaten und zeigt passende Rezepte (vollstaendig/teilweise).
+- Ziel: Resteverwertung und schnelle Planung ohne manuelle Suche.
+- MVP-Note: Nur Konzept, keine Implementierung in Phase 1-5.
+
 ## Phasenplan
 
 ### Phase 1: Projekt-Setup
