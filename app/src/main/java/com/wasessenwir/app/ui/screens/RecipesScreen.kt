@@ -194,7 +194,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 OutlinedTextField(
                     value = ingredientAmount,
                     onValueChange = { ingredientAmount = it },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(2f),
                     label = {
                         Text(
                             text = stringResource(R.string.ingredient_amount_label),
@@ -209,7 +209,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     value = ingredientUnit,
                     onValueChange = { ingredientUnit = it },
                     label = stringResource(R.string.ingredient_unit_label),
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
