@@ -42,6 +42,9 @@ import com.wasessenwir.app.ui.components.PrimaryButton
 import com.wasessenwir.app.ui.theme.CyanPrimary
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.input.pointer.pointerInput
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -93,15 +96,21 @@ fun PlanScreen(viewModel: AppViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = dateDisplay,
-            onValueChange = { },
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showDatePicker = true },
-            label = { Text(text = stringResource(R.string.plan_date_label)) },
-            readOnly = true
-        )
+                .pointerInput(Unit) {
+                    detectTapGestures { showDatePicker = true }
+                }
+        ) {
+            OutlinedTextField(
+                value = dateDisplay,
+                onValueChange = { },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(R.string.plan_date_label)) },
+                readOnly = true
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
