@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -29,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.data.model.MealSlot
@@ -37,6 +39,7 @@ import com.wasessenwir.app.data.model.PlanEntry
 import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.R
 import com.wasessenwir.app.ui.components.PrimaryButton
+import com.wasessenwir.app.ui.theme.CyanPrimary
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.foundation.clickable
 import java.time.Instant
@@ -54,20 +57,27 @@ fun PlanScreen(viewModel: AppViewModel) {
     var dateDisplay by remember { mutableStateOf("") }
     var dateIso by remember { mutableStateOf("") }
     var selectedMealSlot by remember { mutableStateOf(MealSlot.LUNCH) }
+    var mealFilter by remember { mutableStateOf(MealType.BOTH) }
     var selectedRecipeId by remember { mutableStateOf<String?>(null) }
     var editingEntry by remember { mutableStateOf<PlanEntry?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
     val datePickerState = rememberDatePickerState()
     val isoFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
     val displayFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
 
-    val filteredRecipes = recipes.filter { recipe ->
-        when (selectedMealSlot) {
-            MealSlot.LUNCH -> recipe.mealType == MealType.LUNCH || recipe.mealType == MealType.BOTH
-            MealSlot.DINNER -> recipe.mealType == MealType.DINNER || recipe.mealType == MealType.BOTH
+    val mealFilteredRecipes = recipes.filter { recipe ->
+        when (mealFilter) {
+            MealType.LUNCH -> recipe.mealType == MealType.LUNCH || recipe.mealType == MealType.BOTH
+            MealType.DINNER -> recipe.mealType == MealType.DINNER || recipe.mealType == MealType.BOTH
+            MealType.BOTH -> true
         }
     }
-    val selectedRecipe = filteredRecipes.firstOrNull { it.id == selectedRecipeId }
+    val recentRecipes = mealFilteredRecipes.sortedByDescending { it.updatedAt }.take(5)
+    val filteredRecipes = mealFilteredRecipes.filter { recipe ->
+        searchQuery.isBlank() || recipe.name.contains(searchQuery, ignoreCase = true)
+    }
+    val selectedRecipe = recipes.firstOrNull { it.id == selectedRecipeId }
 
     Column(
         modifier = Modifier
@@ -102,14 +112,63 @@ fun PlanScreen(viewModel: AppViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Row {
-            OutlinedButton(onClick = { selectedMealSlot = MealSlot.LUNCH }) {
-                Text(text = stringResource(R.string.meal_lunch))
-            }
+            SegmentedChoicePlan(
+                text = stringResource(R.string.meal_all),
+                selected = mealFilter == MealType.BOTH,
+                onClick = { mealFilter = MealType.BOTH }
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            OutlinedButton(onClick = { selectedMealSlot = MealSlot.DINNER }) {
-                Text(text = stringResource(R.string.meal_dinner))
-            }
+            SegmentedChoicePlan(
+                text = stringResource(R.string.meal_lunch),
+                selected = mealFilter == MealType.LUNCH,
+                onClick = {
+                    mealFilter = MealType.LUNCH
+                    selectedMealSlot = MealSlot.LUNCH
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            SegmentedChoicePlan(
+                text = stringResource(R.string.meal_dinner),
+                selected = mealFilter == MealType.DINNER,
+                onClick = {
+                    mealFilter = MealType.DINNER
+                    selectedMealSlot = MealSlot.DINNER
+                }
+            )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (recentRecipes.isNotEmpty()) {
+            Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                recentRecipes.forEach { recipe ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Row(modifier = Modifier.padding(10.dp)) {
+                            Text(
+                                text = recipe.name,
+                                modifier = Modifier.weight(1f)
+                            )
+                            OutlinedButton(onClick = { selectedRecipeId = recipe.id }) {
+                                Text(text = stringResource(R.string.button_select))
+                            }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(text = stringResource(R.string.recipe_search_label)) }
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -129,18 +188,24 @@ fun PlanScreen(viewModel: AppViewModel) {
                 .fillMaxWidth()
                 .heightIn(max = 200.dp)
         ) {
-            items(filteredRecipes, key = { it.id }) { recipe ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Row(modifier = Modifier.padding(10.dp)) {
-                        Text(
-                            text = recipe.name,
-                            modifier = Modifier.weight(1f)
-                        )
-                        OutlinedButton(onClick = { selectedRecipeId = recipe.id }) {
-                            Text(text = stringResource(R.string.button_select))
+            if (filteredRecipes.isEmpty()) {
+                item {
+                    Text(text = stringResource(R.string.recipe_search_empty))
+                }
+            } else {
+                items(filteredRecipes, key = { it.id }) { recipe ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Row(modifier = Modifier.padding(10.dp)) {
+                            Text(
+                                text = recipe.name,
+                                modifier = Modifier.weight(1f)
+                            )
+                            OutlinedButton(onClick = { selectedRecipeId = recipe.id }) {
+                                Text(text = stringResource(R.string.button_select))
+                            }
                         }
                     }
                 }
@@ -170,6 +235,8 @@ fun PlanScreen(viewModel: AppViewModel) {
                     dateDisplay = ""
                     selectedRecipeId = null
                     selectedMealSlot = MealSlot.LUNCH
+                    mealFilter = MealType.BOTH
+                    searchQuery = ""
                     editingEntry = null
                     }
                 }
@@ -183,6 +250,8 @@ fun PlanScreen(viewModel: AppViewModel) {
                     dateDisplay = ""
                     selectedRecipeId = null
                     selectedMealSlot = MealSlot.LUNCH
+                    mealFilter = MealType.BOTH
+                    searchQuery = ""
                 }) {
                     Text(text = stringResource(R.string.button_cancel))
                 }
@@ -223,6 +292,10 @@ fun PlanScreen(viewModel: AppViewModel) {
                                 }.getOrNull()
                                 dateDisplay = editParsed?.format(displayFormatter) ?: entry.date
                                 selectedMealSlot = entry.mealSlot
+                                mealFilter = when (entry.mealSlot) {
+                                    MealSlot.LUNCH -> MealType.LUNCH
+                                    MealSlot.DINNER -> MealType.DINNER
+                                }
                                 selectedRecipeId = entry.recipeId
                             }) {
                                 Text(text = stringResource(R.string.button_edit))
@@ -264,5 +337,22 @@ fun PlanScreen(viewModel: AppViewModel) {
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+}
+
+@Composable
+private fun SegmentedChoicePlan(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    OutlinedButton(
+        onClick = onClick,
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = if (selected) CyanPrimary else Color.Transparent,
+            contentColor = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
+        )
+    ) {
+        Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
 }
