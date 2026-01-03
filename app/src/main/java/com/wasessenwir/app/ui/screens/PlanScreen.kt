@@ -58,7 +58,10 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlanScreen(viewModel: AppViewModel) {
+fun PlanScreen(
+    viewModel: AppViewModel,
+    onNavigateToShopping: () -> Unit = {}
+) {
     val planEntries by viewModel.planEntries.collectAsState()
     val planRange by viewModel.planRange.collectAsState()
     val recipes by viewModel.recipes.collectAsState()
@@ -327,14 +330,15 @@ fun PlanScreen(viewModel: AppViewModel) {
 
                         Spacer(modifier = Modifier.height(12.dp))
                         Row {
-                            PrimaryButton(
-                                text = stringResource(R.string.plan_add_to_shopping_list),
-                                onClick = {
-                                    if (startIso.isNotBlank()) {
-                                        viewModel.createShoppingListFromPlan(startIso, rangeEntries, recipes)
-                                    }
+                        PrimaryButton(
+                            text = stringResource(R.string.plan_add_to_shopping_list),
+                            onClick = {
+                                if (startIso.isNotBlank()) {
+                                    viewModel.createShoppingListFromPlan(startIso, rangeEntries, recipes)
+                                    onNavigateToShopping()
                                 }
-                            )
+                            }
+                        )
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedButton(onClick = { showPlannerSheet = true }) {
                                 Text(text = stringResource(R.string.button_edit))

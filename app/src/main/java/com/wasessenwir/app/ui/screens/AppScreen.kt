@@ -77,7 +77,10 @@ fun AppScreen(viewModel: AppViewModel, modifier: Modifier = Modifier) {
         when (selectedTab) {
             0 -> HouseholdsScreen(viewModel)
             1 -> RecipesScreen(viewModel)
-            2 -> PlanScreen(viewModel)
+            2 -> PlanScreen(
+                viewModel = viewModel,
+                onNavigateToShopping = { selectedTab = 3 }
+            )
             else -> ShoppingListScreen(viewModel)
         }
     }
