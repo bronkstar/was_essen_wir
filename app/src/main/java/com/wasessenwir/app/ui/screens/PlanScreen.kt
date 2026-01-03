@@ -32,6 +32,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -59,6 +60,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun PlanScreen(viewModel: AppViewModel) {
     val planEntries by viewModel.planEntries.collectAsState()
+    val planRange by viewModel.planRange.collectAsState()
     val recipes by viewModel.recipes.collectAsState()
     val activeHouseholdId by viewModel.activeHouseholdId.collectAsState()
 
@@ -82,6 +84,34 @@ fun PlanScreen(viewModel: AppViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isoFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
     val displayFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
+    var syncedRangeKey by remember { mutableStateOf("") }
+
+    LaunchedEffect(planRange?.startDate, planRange?.endDate) {
+        val range = planRange
+        if (range == null) {
+            if (syncedRangeKey.isNotEmpty()) {
+                syncedRangeKey = ""
+                planningActive = false
+                startIso = ""
+                endIso = ""
+                startDisplay = ""
+                endDisplay = ""
+            }
+            return@LaunchedEffect
+        }
+        val key = "${range.startDate}|${range.endDate}"
+        if (key != syncedRangeKey) {
+            syncedRangeKey = key
+            startIso = range.startDate
+            endIso = range.endDate
+            val start = runCatching { LocalDate.parse(range.startDate, isoFormatter) }.getOrNull()
+            val end = runCatching { LocalDate.parse(range.endDate, isoFormatter) }.getOrNull()
+            startDisplay = start?.format(displayFormatter) ?: range.startDate
+            endDisplay = end?.format(displayFormatter) ?: range.endDate
+            planningActive = true
+            initializedRangeKey = ""
+        }
+    }
 
     val rangeDates = remember(startIso, endIso, planningActive) {
         if (!planningActive || startIso.isBlank() || endIso.isBlank()) {
@@ -172,155 +202,169 @@ fun PlanScreen(viewModel: AppViewModel) {
     val lunchCount = rangeEntries.count { it.mealSlot == MealSlot.LUNCH }
     val dinnerCount = rangeEntries.count { it.mealSlot == MealSlot.DINNER }
 
-    Column(
+    if (activeHouseholdId == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+        ) {
+            Text(text = stringResource(R.string.needs_active_household))
+        }
+        return
+    }
+
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (activeHouseholdId == null) {
-            Text(text = stringResource(R.string.needs_active_household))
-            return
+        item {
+            Text(text = stringResource(R.string.plan_entry_title), style = MaterialTheme.typography.titleMedium)
         }
-
-        Text(text = stringResource(R.string.plan_entry_title), style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = stringResource(R.string.plan_range_title), style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row {
-            Column(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = startDisplay,
-                        onValueChange = { },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(text = stringResource(R.string.plan_range_start_label)) },
-                        readOnly = true
-                    )
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable { showStartPicker = true }
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = endDisplay,
-                        onValueChange = { },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(text = stringResource(R.string.plan_range_end_label)) },
-                        readOnly = true
-                    )
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable { showEndPicker = true }
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-            }
+        item {
+            Text(text = stringResource(R.string.plan_range_title), style = MaterialTheme.typography.bodyMedium)
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        PrimaryButton(
-            text = stringResource(R.string.button_create_list),
-            onClick = {
-                if (startIso.isNotBlank() && endIso.isNotBlank()) {
-                    if (!planningActive) {
-                        planningActive = true
-                        initializedRangeKey = ""
-                    }
-                    showPlannerSheet = true
-                }
-            }
-        )
-
-        if (planningActive && rangeDates.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = stringResource(R.string.plan_list_overview_title), style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.plan_list_range_label, startDisplay, endDisplay),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.plan_lunch_progress_label, lunchCount, rangeDates.size),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Text(
-                        text = stringResource(R.string.plan_dinner_progress_label, dinnerCount, rangeDates.size),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    rangeDates.forEach { date ->
-                        val dateIso = date.format(isoFormatter)
-                        val lunchId = entryByKey[entryKey(dateIso, MealSlot.LUNCH)]?.recipeId
-                        val dinnerId = entryByKey[entryKey(dateIso, MealSlot.DINNER)]?.recipeId
-                        val lunchName = lunchId?.let { recipeById[it]?.name } ?: "-"
-                        val dinnerName = dinnerId?.let { recipeById[it]?.name } ?: "-"
-
-                        Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                            Text(text = date.format(displayFormatter), style = MaterialTheme.typography.labelLarge)
-                            Text(
-                                text = stringResource(R.string.plan_lunch_summary, lunchName),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = stringResource(R.string.plan_dinner_summary, dinnerName),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row {
-                        PrimaryButton(
-                            text = stringResource(R.string.plan_add_to_shopping_list),
-                            onClick = {
-                                if (startIso.isNotBlank()) {
-                                    viewModel.createShoppingListFromPlan(startIso, rangeEntries, recipes)
-                                }
-                            }
+        item {
+            Row {
+                Column(modifier = Modifier.weight(1f)) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = startDisplay,
+                            onValueChange = { },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(text = stringResource(R.string.plan_range_start_label)) },
+                            readOnly = true
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        OutlinedButton(onClick = { showPlannerSheet = true }) {
-                            Text(text = stringResource(R.string.button_edit))
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clickable { showStartPicker = true }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = endDisplay,
+                            onValueChange = { },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(text = stringResource(R.string.plan_range_end_label)) },
+                            readOnly = true
+                        )
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clickable { showEndPicker = true }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+            }
+        }
+        item {
+            PrimaryButton(
+                text = stringResource(R.string.button_create_list),
+                onClick = {
+                    if (startIso.isNotBlank() && endIso.isNotBlank()) {
+                        if (!planningActive) {
+                            planningActive = true
+                            initializedRangeKey = ""
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        OutlinedButton(
-                            onClick = {
-                                rangeEntries.forEach { entry ->
-                                    viewModel.deletePlanEntry(entry.id)
+                        showPlannerSheet = true
+                    }
+                }
+            )
+        }
+        if (planningActive && rangeDates.isNotEmpty()) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.plan_list_overview_title),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.plan_list_range_label, startDisplay, endDisplay),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.plan_lunch_progress_label, lunchCount, rangeDates.size),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = stringResource(R.string.plan_dinner_progress_label, dinnerCount, rangeDates.size),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        rangeDates.forEach { date ->
+                            val dateIso = date.format(isoFormatter)
+                            val lunchId = entryByKey[entryKey(dateIso, MealSlot.LUNCH)]?.recipeId
+                            val dinnerId = entryByKey[entryKey(dateIso, MealSlot.DINNER)]?.recipeId
+                            val lunchName = lunchId?.let { recipeById[it]?.name } ?: "-"
+                            val dinnerName = dinnerId?.let { recipeById[it]?.name } ?: "-"
+
+                            Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                                Text(text = date.format(displayFormatter), style = MaterialTheme.typography.labelLarge)
+                                Text(
+                                    text = stringResource(R.string.plan_lunch_summary, lunchName),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = stringResource(R.string.plan_dinner_summary, dinnerName),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row {
+                            PrimaryButton(
+                                text = stringResource(R.string.plan_add_to_shopping_list),
+                                onClick = {
+                                    if (startIso.isNotBlank()) {
+                                        viewModel.createShoppingListFromPlan(startIso, rangeEntries, recipes)
+                                    }
                                 }
-                                planningActive = false
-                                showPlannerSheet = false
-                                startIso = ""
-                                endIso = ""
-                                startDisplay = ""
-                                endDisplay = ""
-                                searchQuery = ""
-                                mealFilter = MealType.BOTH
-                                initializedRangeKey = ""
-                                selectedRecipeIds.clear()
-                                slotSelections.clear()
-                            },
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.error
                             )
-                        ) {
-                            Text(text = stringResource(R.string.button_delete))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedButton(onClick = { showPlannerSheet = true }) {
+                                Text(text = stringResource(R.string.button_edit))
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedButton(
+                                onClick = {
+                                    rangeEntries.forEach { entry ->
+                                        viewModel.deletePlanEntry(entry.id)
+                                    }
+                                    viewModel.deletePlanRange()
+                                    planningActive = false
+                                    showPlannerSheet = false
+                                    startIso = ""
+                                    endIso = ""
+                                    startDisplay = ""
+                                    endDisplay = ""
+                                    searchQuery = ""
+                                    mealFilter = MealType.BOTH
+                                    initializedRangeKey = ""
+                                    syncedRangeKey = ""
+                                    selectedRecipeIds.clear()
+                                    slotSelections.clear()
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Text(text = stringResource(R.string.button_delete))
+                            }
                         }
                     }
                 }
@@ -469,6 +513,7 @@ fun PlanScreen(viewModel: AppViewModel) {
                                         }
                                     }
                                 }
+                                viewModel.setPlanRange(startIso, endIso)
                                 showPlannerSheet = false
                             }
                         )

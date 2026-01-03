@@ -8,6 +8,7 @@ import com.wasessenwir.app.data.model.Ingredient
 import com.wasessenwir.app.data.model.MealSlot
 import com.wasessenwir.app.data.model.MealType
 import com.wasessenwir.app.data.model.PlanEntry
+import com.wasessenwir.app.data.model.PlanRange
 import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.data.model.ShoppingItem
 import com.wasessenwir.app.data.model.ShoppingList
@@ -52,6 +53,11 @@ class AppViewModel(
         .filterNotNull()
         .flatMapLatest { repository.observePlanEntries(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val planRange: StateFlow<PlanRange?> = _activeHouseholdId
+        .filterNotNull()
+        .flatMapLatest { repository.observePlanRange(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val shoppingLists: StateFlow<List<ShoppingList>> = _activeHouseholdId
         .filterNotNull()
@@ -126,6 +132,20 @@ class AppViewModel(
     fun deletePlanEntry(planEntryId: String) {
         viewModelScope.launch {
             repository.deletePlanEntry(planEntryId)
+        }
+    }
+
+    fun setPlanRange(startDate: String, endDate: String) {
+        val householdId = _activeHouseholdId.value ?: return
+        viewModelScope.launch {
+            repository.setPlanRange(householdId, startDate, endDate)
+        }
+    }
+
+    fun deletePlanRange() {
+        val householdId = _activeHouseholdId.value ?: return
+        viewModelScope.launch {
+            repository.deletePlanRange(householdId)
         }
     }
 

@@ -6,6 +6,7 @@ import com.wasessenwir.app.data.model.Ingredient
 import com.wasessenwir.app.data.model.MealSlot
 import com.wasessenwir.app.data.model.MealType
 import com.wasessenwir.app.data.model.PlanEntry
+import com.wasessenwir.app.data.model.PlanRange
 import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.data.model.ShoppingItem
 import com.wasessenwir.app.data.model.ShoppingList
@@ -20,6 +21,7 @@ class FirestoreRepository(
     private val households = firestore.collection("households")
     private val recipes = firestore.collection("recipes")
     private val planEntries = firestore.collection("planEntries")
+    private val planRanges = firestore.collection("planRanges")
     private val shoppingLists = firestore.collection("shoppingLists")
 
     suspend fun createHousehold(name: String, userId: String): String {
@@ -194,6 +196,53 @@ class FirestoreRepository(
                     )
                 } ?: emptyList()
                 trySend(items)
+            }
+        awaitClose { registration.remove() }
+    }
+
+    suspend fun setPlanRange(householdId: String, startDate: String, endDate: String) {
+        val now = System.currentTimeMillis()
+        val data = mapOf(
+            "householdId" to householdId,
+            "startDate" to startDate,
+            "endDate" to endDate,
+            "updatedAt" to now
+        )
+        planRanges.document(householdId).set(data).await()
+    }
+
+    suspend fun deletePlanRange(householdId: String) {
+        planRanges.document(householdId).delete().await()
+    }
+
+    fun observePlanRange(householdId: String): Flow<PlanRange?> = callbackFlow {
+        val registration = planRanges
+            .document(householdId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot == null || !snapshot.exists()) {
+                    trySend(null)
+                    return@addSnapshotListener
+                }
+                val startDate = snapshot.getString("startDate")
+                val endDate = snapshot.getString("endDate")
+                val updatedAt = snapshot.getLong("updatedAt") ?: 0L
+                if (startDate == null || endDate == null) {
+                    trySend(null)
+                    return@addSnapshotListener
+                }
+                trySend(
+                    PlanRange(
+                        id = snapshot.id,
+                        householdId = snapshot.getString("householdId") ?: householdId,
+                        startDate = startDate,
+                        endDate = endDate,
+                        updatedAt = updatedAt
+                    )
+                )
             }
         awaitClose { registration.remove() }
     }
