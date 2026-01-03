@@ -283,12 +283,6 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     selected = listFilter == MealType.DINNER,
                     onClick = { listFilter = MealType.DINNER }
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                SegmentedChoice(
-                    text = stringResource(R.string.recipe_meal_both),
-                    selected = listFilter == MealType.BOTH,
-                    onClick = { listFilter = MealType.BOTH }
-                )
             }
         }
 
