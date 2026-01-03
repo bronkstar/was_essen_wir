@@ -20,6 +20,12 @@ import androidx.compose.ui.res.stringResource
 import com.wasessenwir.app.ui.AppViewModel
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.R
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.padding
+import com.wasessenwir.app.ui.theme.CyanPrimary
+import com.wasessenwir.app.ui.theme.InactiveTab
 
 @Composable
 fun AppScreen(viewModel: AppViewModel, modifier: Modifier = Modifier) {
@@ -41,12 +47,29 @@ fun AppScreen(viewModel: AppViewModel, modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-        TabRow(selectedTabIndex = selectedTab) {
+        TabRow(
+            selectedTabIndex = selectedTab,
+            containerColor = Color.Transparent,
+            contentColor = CyanPrimary,
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                    color = CyanPrimary
+                )
+            },
+            modifier = Modifier.height(48.dp)
+        ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = selectedTab == index,
                     onClick = { selectedTab = index },
-                    text = { Text(text = stringResource(title)) }
+                    text = {
+                        Text(
+                            text = stringResource(title),
+                            color = if (selectedTab == index) CyanPrimary else InactiveTab,
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                 )
             }
         }

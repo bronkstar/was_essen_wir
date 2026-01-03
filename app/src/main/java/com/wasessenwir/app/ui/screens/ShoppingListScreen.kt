@@ -11,11 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,6 +40,8 @@ import androidx.compose.material3.rememberDatePickerState
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.wasessenwir.app.ui.components.PrimaryButton
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +51,8 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
     val recipes by viewModel.recipes.collectAsState()
     val activeHouseholdId by viewModel.activeHouseholdId.collectAsState()
 
-    var weekStart by remember { mutableStateOf("") }
+    var weekStartIso by remember { mutableStateOf("") }
+    var weekStartDisplay by remember { mutableStateOf("") }
     var itemName by remember { mutableStateOf("") }
     var itemAmount by remember { mutableStateOf("") }
     var itemUnit by remember { mutableStateOf("") }
@@ -57,12 +61,13 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
     var editingList by remember { mutableStateOf<ShoppingList?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
-    val dateFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
+    val isoFormatter = remember { DateTimeFormatter.ISO_LOCAL_DATE }
+    val displayFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
     ) {
         if (activeHouseholdId == null) {
             Text(text = stringResource(R.string.needs_active_household))
@@ -74,8 +79,8 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = weekStart,
-            onValueChange = { weekStart = it },
+            value = weekStartDisplay,
+            onValueChange = { },
             modifier = Modifier.fillMaxWidth(),
             label = { Text(text = stringResource(R.string.week_start_label)) },
             readOnly = true
@@ -84,18 +89,18 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Row {
-            Button(onClick = { showDatePicker = true }) {
+            OutlinedButton(onClick = { showDatePicker = true }) {
                 Text(text = stringResource(R.string.button_pick_date))
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-                val trimmedWeek = weekStart.trim()
-                if (trimmedWeek.isNotEmpty()) {
-                    viewModel.createShoppingListFromPlan(trimmedWeek, planEntries, recipes)
+            PrimaryButton(
+                text = stringResource(R.string.button_generate_from_plan),
+                onClick = {
+                    if (weekStartIso.isNotEmpty()) {
+                        viewModel.createShoppingListFromPlan(weekStartIso, planEntries, recipes)
+                    }
                 }
-            }) {
-                Text(text = stringResource(R.string.button_generate_from_plan))
-            }
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -127,7 +132,7 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Button(onClick = {
+        OutlinedButton(onClick = {
             val trimmed = itemName.trim()
             if (trimmed.isNotEmpty()) {
                 val amount = itemAmount.toDoubleOrNull() ?: 0.0
@@ -151,37 +156,37 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Row {
-            Button(onClick = {
-                val trimmedWeek = weekStart.trim()
-                if (trimmedWeek.isNotEmpty()) {
+            PrimaryButton(
+                text = stringResource(
+                    if (editingList == null) R.string.button_create else R.string.button_save
+                ),
+                onClick = {
+                    if (weekStartIso.isNotEmpty()) {
                     if (editingList == null) {
-                        viewModel.createShoppingList(trimmedWeek, draftItems.toList())
+                        viewModel.createShoppingList(weekStartIso, draftItems.toList())
                     } else {
                         val existing = editingList!!
                         viewModel.updateShoppingList(
                             existing.copy(
-                                weekStart = trimmedWeek,
+                                weekStart = weekStartIso,
                                 items = draftItems.toList()
                             )
                         )
                     }
-                    weekStart = ""
+                    weekStartIso = ""
+                    weekStartDisplay = ""
                     draftItems.clear()
                     editingList = null
+                    }
                 }
-            }) {
-                Text(
-                    text = stringResource(
-                        if (editingList == null) R.string.button_create else R.string.button_save
-                    )
-                )
-            }
+            )
 
             if (editingList != null) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = {
+                OutlinedButton(onClick = {
                     editingList = null
-                    weekStart = ""
+                    weekStartIso = ""
+                    weekStartDisplay = ""
                     draftItems.clear()
                 }) {
                     Text(text = stringResource(R.string.button_cancel))
@@ -198,9 +203,14 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                 .weight(1f)
         ) {
             items(shoppingLists, key = { it.id }) { list ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(text = stringResource(R.string.shopping_week_label, list.weekStart))
+                val parsed = runCatching { LocalDate.parse(list.weekStart, isoFormatter) }.getOrNull()
+                val weekLabel = parsed?.format(displayFormatter) ?: list.weekStart
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = stringResource(R.string.shopping_week_label, weekLabel))
                         Spacer(modifier = Modifier.height(8.dp))
                         list.items.forEachIndexed { index, item ->
                             Row(modifier = Modifier.fillMaxWidth()) {
@@ -240,16 +250,17 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
-                            Button(onClick = {
+                            OutlinedButton(onClick = {
                                 editingList = list
-                                weekStart = list.weekStart
+                                weekStartIso = list.weekStart
+                                weekStartDisplay = weekLabel
                                 draftItems.clear()
                                 draftItems.addAll(list.items)
                             }) {
                                 Text(text = stringResource(R.string.button_edit))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Button(onClick = { viewModel.deleteShoppingList(list.id) }) {
+                            OutlinedButton(onClick = { viewModel.deleteShoppingList(list.id) }) {
                                 Text(text = stringResource(R.string.button_delete))
                             }
                         }
@@ -269,7 +280,8 @@ fun ShoppingListScreen(viewModel: AppViewModel) {
                         val localDate = Instant.ofEpochMilli(millis)
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate()
-                        weekStart = localDate.format(dateFormatter)
+                        weekStartIso = localDate.format(isoFormatter)
+                        weekStartDisplay = localDate.format(displayFormatter)
                     }
                     showDatePicker = false
                 }) {

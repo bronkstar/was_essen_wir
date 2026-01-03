@@ -11,10 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import com.wasessenwir.app.data.model.Ingredient
 import com.wasessenwir.app.data.model.Recipe
 import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.R
+import com.wasessenwir.app.ui.components.PrimaryButton
 
 @Composable
 fun RecipesScreen(viewModel: AppViewModel) {
@@ -48,7 +50,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
     ) {
         if (activeHouseholdId == null) {
             Text(text = stringResource(R.string.needs_active_household))
@@ -108,7 +110,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Button(onClick = {
+        OutlinedButton(onClick = {
             val trimmed = ingredientName.trim()
             if (trimmed.isNotEmpty()) {
                 val amount = ingredientAmount.toDoubleOrNull() ?: 0.0
@@ -132,38 +134,37 @@ fun RecipesScreen(viewModel: AppViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Row {
-            Button(onClick = {
-                val trimmed = name.trim()
-                val servings = servingsText.toIntOrNull() ?: 0
-                if (trimmed.isNotEmpty()) {
-                    if (editingRecipe == null) {
-                        viewModel.createRecipe(trimmed, servings, draftIngredients.toList())
-                    } else {
-                        val existing = editingRecipe!!
-                        viewModel.updateRecipe(
-                            existing.copy(
-                                name = trimmed,
-                                servings = servings,
-                                ingredients = draftIngredients.toList()
+            PrimaryButton(
+                text = stringResource(
+                    if (editingRecipe == null) R.string.button_create else R.string.button_save
+                ),
+                onClick = {
+                    val trimmed = name.trim()
+                    val servings = servingsText.toIntOrNull() ?: 0
+                    if (trimmed.isNotEmpty()) {
+                        if (editingRecipe == null) {
+                            viewModel.createRecipe(trimmed, servings, draftIngredients.toList())
+                        } else {
+                            val existing = editingRecipe!!
+                            viewModel.updateRecipe(
+                                existing.copy(
+                                    name = trimmed,
+                                    servings = servings,
+                                    ingredients = draftIngredients.toList()
+                                )
                             )
-                        )
+                        }
+                        name = ""
+                        servingsText = "2"
+                        draftIngredients.clear()
+                        editingRecipe = null
                     }
-                    name = ""
-                    servingsText = "2"
-                    draftIngredients.clear()
-                    editingRecipe = null
                 }
-            }) {
-                Text(
-                    text = stringResource(
-                        if (editingRecipe == null) R.string.button_create else R.string.button_save
-                    )
-                )
-            }
+            )
 
             if (editingRecipe != null) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = {
+                OutlinedButton(onClick = {
                     editingRecipe = null
                     name = ""
                     servingsText = "2"
@@ -183,8 +184,11 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 .weight(1f)
         ) {
             items(recipes, key = { it.id }) { recipe ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
                         Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
                         Text(
@@ -195,7 +199,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
-                            Button(onClick = {
+                            OutlinedButton(onClick = {
                                 editingRecipe = recipe
                                 name = recipe.name
                                 servingsText = recipe.servings.toString()
@@ -205,7 +209,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                                 Text(text = stringResource(R.string.button_edit))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Button(onClick = { viewModel.deleteRecipe(recipe.id) }) {
+                            OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
                                 Text(text = stringResource(R.string.button_delete))
                             }
                         }

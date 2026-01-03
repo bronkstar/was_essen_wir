@@ -31,7 +31,7 @@
     <string name="recipe_ingredients_count">Zutaten: %1$d</string>
 
     <string name="plan_entry_title">Planeintrag</string>
-    <string name="plan_date_label">Datum (JJJJ-MM-TT)</string>
+    <string name="plan_date_label">Datum (TT.MM.JJJJ)</string>
     <string name="meal_lunch">Mittag</string>
     <string name="meal_dinner">Abend</string>
     <string name="selected_recipe_label">Ausgewaehltes Rezept: %1$s</string>
@@ -39,7 +39,7 @@
     <string name="plan_recipe_label">Rezept: %1$s</string>
 
     <string name="shopping_title">Einkaufsliste (Snapshot)</string>
-    <string name="week_start_label">Wochenstart (JJJJ-MM-TT)</string>
+    <string name="week_start_label">Wochenstart (TT.MM.JJJJ)</string>
     <string name="button_pick_date">Datum waehlen</string>
     <string name="button_generate_from_plan">Liste aus Plan erzeugen</string>
     <string name="button_apply">Uebernehmen</string>

@@ -11,10 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.ui.AppViewModel
 import com.wasessenwir.app.R
+import com.wasessenwir.app.ui.components.PrimaryButton
 
 @Composable
 fun HouseholdsScreen(viewModel: AppViewModel) {
@@ -39,7 +41,7 @@ fun HouseholdsScreen(viewModel: AppViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
     ) {
         Text(
             text = stringResource(
@@ -71,7 +73,10 @@ fun HouseholdsScreen(viewModel: AppViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Row {
-            Button(
+            PrimaryButton(
+                text = stringResource(
+                    if (editingId == null) R.string.button_create else R.string.button_save
+                ),
                 onClick = {
                     val trimmed = name.trim()
                     if (trimmed.isNotEmpty()) {
@@ -84,17 +89,11 @@ fun HouseholdsScreen(viewModel: AppViewModel) {
                         editingId = null
                     }
                 }
-            ) {
-                Text(
-                    text = stringResource(
-                        if (editingId == null) R.string.button_create else R.string.button_save
-                    )
-                )
-            }
+            )
 
             if (editingId != null) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = {
+                OutlinedButton(onClick = {
                     editingId = null
                     name = ""
                 }) {
@@ -112,8 +111,11 @@ fun HouseholdsScreen(viewModel: AppViewModel) {
                 .weight(1f)
         ) {
             items(households, key = { it.id }) { household ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = household.name, style = MaterialTheme.typography.titleMedium)
                         Text(
                             text = stringResource(R.string.household_id_label, household.id),
@@ -128,18 +130,18 @@ fun HouseholdsScreen(viewModel: AppViewModel) {
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
-                            Button(onClick = { viewModel.setActiveHousehold(household.id) }) {
+                            OutlinedButton(onClick = { viewModel.setActiveHousehold(household.id) }) {
                                 Text(text = stringResource(R.string.button_set_active))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Button(onClick = {
+                            OutlinedButton(onClick = {
                                 editingId = household.id
                                 name = household.name
                             }) {
                                 Text(text = stringResource(R.string.button_edit))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Button(onClick = { viewModel.deleteHousehold(household.id) }) {
+                            OutlinedButton(onClick = { viewModel.deleteHousehold(household.id) }) {
                                 Text(text = stringResource(R.string.button_delete))
                             }
                         }
