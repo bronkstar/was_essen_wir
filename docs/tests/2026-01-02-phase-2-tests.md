@@ -32,9 +32,10 @@ Warnings:
 - `./gradlew test` PASS
 
 ## Manual Smoke Tests
-- Blockiert: App stuerzte beim Start wegen Firebase Auth `CONFIGURATION_NOT_FOUND`.
-- Fix: Fehlerhandling in Auth eingefuegt, damit App nicht crasht.
-- Manuelle Smoke Tests: ausstehend (nach Update der App auf dem Geraet).
+- PASS: Household erstellen + aktiv setzen.
+- PASS: Recipe CRUD (Erstellen, Bearbeiten, Speichern).
+- PASS: PlanEntry Lunch/Dinner erstellt.
+- PASS: ShoppingList Snapshot erstellt, HaveIt/Checked toggles funktionieren.
 
 ## Empfehlungen
 1) AGP upgraden oder `android.suppressUnsupportedCompileSdk=36` setzen.
