@@ -9,9 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,9 +34,18 @@ fun UnitDropdown(
             value = value,
             onValueChange = { },
             readOnly = true,
-            label = { Text(text = label) },
+            label = {
+                Text(
+                    text = label,
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = modifier.menuAnchor()
+            modifier = modifier
+                .menuAnchor()
+                .fillMaxWidth()
         )
         ExposedDropdownMenu(
             expanded = expanded,

@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wasessenwir.app.R
 import com.wasessenwir.app.data.model.Ingredient
@@ -145,7 +146,14 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     value = ingredientAmount,
                     onValueChange = { ingredientAmount = it },
                     modifier = Modifier.weight(2f),
-                    label = { Text(text = stringResource(R.string.ingredient_amount_label)) }
+                    label = {
+                        Text(
+                            text = stringResource(R.string.ingredient_amount_label),
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 UnitDropdown(
