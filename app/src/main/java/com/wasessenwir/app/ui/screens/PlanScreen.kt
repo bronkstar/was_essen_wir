@@ -87,8 +87,9 @@ fun PlanScreen(viewModel: AppViewModel) {
                 emptyList()
             } else {
                 val dates = mutableListOf<LocalDate>()
-                var cursor = start
-                while (!cursor.isAfter(end)) {
+                var cursor = start!!
+                val endDate = end!!
+                while (!cursor.isAfter(endDate)) {
                     dates.add(cursor)
                     cursor = cursor.plusDays(1)
                 }
@@ -458,6 +459,7 @@ private fun RecipeToggleRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecipeDropdown(
     label: String,
