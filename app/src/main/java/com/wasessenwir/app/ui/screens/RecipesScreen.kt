@@ -83,7 +83,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
     val ingredientAmountFocus = remember { BringIntoViewRequester() }
     val searchFocus = remember { BringIntoViewRequester() }
 
-    val recentRecipes = recipes.sortedByDescending { it.updatedAt }.take(3)
+    val recentRecipes = recipes.sortedByDescending { it.updatedAt }.take(5)
     val ingredientDefaults = remember(recipes) {
         val byName = LinkedHashMap<String, Ingredient>()
         recipes.sortedByDescending { it.updatedAt }.forEach { recipe ->
@@ -409,6 +409,24 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     }) {
                         Text(text = stringResource(R.string.button_cancel))
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(onClick = {
+                        val recipeId = editingRecipe?.id
+                        if (recipeId != null) {
+                            viewModel.deleteRecipe(recipeId)
+                        }
+                        editingRecipe = null
+                        name = ""
+                        servingsText = "2"
+                        draftIngredients.clear()
+                        mealType = MealType.BOTH
+                        ingredientName = ""
+                        ingredientAmount = ""
+                        ingredientUnit = "g"
+                        editingIngredientIndex = null
+                    }) {
+                        Text(text = stringResource(R.string.button_delete))
+                    }
                 }
             }
         }
@@ -495,26 +513,19 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
-                        Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = stringResource(
-                                R.string.recipe_ingredients_count,
-                                recipe.ingredients.size
-                            )
+                            text = recipe.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f)
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row {
-                            OutlinedButton(onClick = {
-                                startEditing(recipe)
-                            }) {
-                                Text(text = stringResource(R.string.button_edit))
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
-                                Text(text = stringResource(R.string.button_delete))
-                            }
+                        OutlinedButton(onClick = { startEditing(recipe) }) {
+                            Text(text = stringResource(R.string.button_edit))
                         }
                     }
                 }
