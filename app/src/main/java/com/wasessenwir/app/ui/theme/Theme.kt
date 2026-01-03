@@ -2,8 +2,8 @@ package com.wasessenwir.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.material3.colorSchemeFromSeed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -13,7 +13,13 @@ fun WasEssenWirTheme(
     content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) {
-        colorSchemeFromSeed(seedColor = CyanPrimary)
+        darkColorScheme(
+            primary = CyanPrimary,
+            secondary = CyanPrimary,
+            tertiary = CyanPrimary,
+            onPrimary = Color.Black,
+            surfaceVariant = Color(0xFF1F2A2A)
+        )
     } else {
         lightColorScheme(
             primary = CyanPrimary,
