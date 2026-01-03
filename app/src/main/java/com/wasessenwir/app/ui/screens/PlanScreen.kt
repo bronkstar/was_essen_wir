@@ -88,6 +88,12 @@ fun PlanScreen(viewModel: AppViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        OutlinedButton(onClick = { showDatePicker = true }) {
+            Text(text = stringResource(R.string.button_pick_date))
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         Row {
             OutlinedButton(onClick = { selectedMealSlot = MealSlot.LUNCH }) {
                 Text(text = stringResource(R.string.meal_lunch))
@@ -137,10 +143,6 @@ fun PlanScreen(viewModel: AppViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Row {
-            OutlinedButton(onClick = { showDatePicker = true }) {
-                Text(text = stringResource(R.string.button_pick_date))
-            }
-            Spacer(modifier = Modifier.width(8.dp))
             PrimaryButton(
                 text = stringResource(
                     if (editingEntry == null) R.string.button_create else R.string.button_save
