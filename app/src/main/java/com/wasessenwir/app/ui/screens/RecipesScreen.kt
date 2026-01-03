@@ -57,6 +57,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     var listFilter by remember { mutableStateOf<MealType?>(null) }
 
+    val recentRecipes = recipes.sortedByDescending { it.updatedAt }.take(3)
     val filteredRecipes = recipes.filter { recipe ->
         val matchesQuery = searchQuery.isBlank() || recipe.name.contains(searchQuery, ignoreCase = true) ||
             recipe.ingredients.any { it.name.contains(searchQuery, ignoreCase = true) }
@@ -139,7 +140,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
             OutlinedTextField(
                 value = ingredientAmount,
                 onValueChange = { ingredientAmount = it },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(2f),
                 label = { Text(text = stringResource(R.string.ingredient_amount_label)) }
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -221,6 +222,36 @@ fun RecipesScreen(viewModel: AppViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (recentRecipes.isNotEmpty()) {
+            Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            recentRecipes.forEach { recipe ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
+                        Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(onClick = {
+                            editingRecipe = recipe
+                            name = recipe.name
+                            servingsText = recipe.servings.toString()
+                            draftIngredients.clear()
+                            draftIngredients.addAll(recipe.ingredients)
+                            mealType = recipe.mealType
+                        }) {
+                            Text(text = stringResource(R.string.button_edit))
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+
         Text(text = stringResource(R.string.recipe_list_title), style = MaterialTheme.typography.titleMedium)
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -262,41 +293,46 @@ fun RecipesScreen(viewModel: AppViewModel) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            items(filteredRecipes, key = { it.id }) { recipe ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
-                        Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
-                        Text(
-                            text = stringResource(
-                                R.string.recipe_ingredients_count,
-                                recipe.ingredients.size
+        if (filteredRecipes.isEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = stringResource(R.string.recipe_search_empty))
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(filteredRecipes, key = { it.id }) { recipe ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
+                            Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
+                            Text(
+                                text = stringResource(
+                                    R.string.recipe_ingredients_count,
+                                    recipe.ingredients.size
+                                )
                             )
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row {
-                            OutlinedButton(onClick = {
-                                editingRecipe = recipe
-                                name = recipe.name
-                                servingsText = recipe.servings.toString()
-                                draftIngredients.clear()
-                                draftIngredients.addAll(recipe.ingredients)
-                                mealType = recipe.mealType
-                            }) {
-                                Text(text = stringResource(R.string.button_edit))
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
-                                Text(text = stringResource(R.string.button_delete))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row {
+                                OutlinedButton(onClick = {
+                                    editingRecipe = recipe
+                                    name = recipe.name
+                                    servingsText = recipe.servings.toString()
+                                    draftIngredients.clear()
+                                    draftIngredients.addAll(recipe.ingredients)
+                                    mealType = recipe.mealType
+                                }) {
+                                    Text(text = stringResource(R.string.button_edit))
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
+                                    Text(text = stringResource(R.string.button_delete))
+                                }
                             }
                         }
                     }

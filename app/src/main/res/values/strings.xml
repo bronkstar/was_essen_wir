@@ -28,8 +28,10 @@
     <string name="recipe_servings_label">Portionen</string>
     <string name="recipe_meal_type_label">Mahlzeit</string>
     <string name="recipe_meal_lunch">Mittag</string>
-    <string name="recipe_meal_dinner">Abend</string>
+    <string name="recipe_meal_dinner">Abendessen</string>
     <string name="recipe_meal_both">Beides</string>
+    <string name="recipe_recent_title">Kuerzlich hinzugefuegt</string>
+    <string name="recipe_search_empty">Keine Treffer in der Rezept-Liste.</string>
     <string name="ingredients_title">Zutaten</string>
     <string name="ingredient_name_label">Zutatenname</string>
     <string name="ingredient_amount_label">Menge</string>
