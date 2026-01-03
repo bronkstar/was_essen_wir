@@ -268,7 +268,7 @@ fun PlanScreen(viewModel: AppViewModel) {
                     item {
                         Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
                     }
-                    items(recentRecipes, key = { it.id }) { recipe ->
+                    items(recentRecipes, key = { "recent-${it.id}" }) { recipe ->
                         RecipeToggleRow(
                             recipe = recipe,
                             selected = selectedRecipeIds.contains(recipe.id),
@@ -289,7 +289,7 @@ fun PlanScreen(viewModel: AppViewModel) {
                         Text(text = stringResource(R.string.recipe_search_empty))
                     }
                 } else {
-                    items(filteredRecipes, key = { it.id }) { recipe ->
+                    items(filteredRecipes, key = { "all-${it.id}" }) { recipe ->
                         RecipeToggleRow(
                             recipe = recipe,
                             selected = selectedRecipeIds.contains(recipe.id),
