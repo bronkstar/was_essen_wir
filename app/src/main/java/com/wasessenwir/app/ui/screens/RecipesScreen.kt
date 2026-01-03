@@ -391,10 +391,17 @@ fun RecipesScreen(viewModel: AppViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
-                        Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
-                        Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = recipe.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f)
+                        )
                         OutlinedButton(onClick = {
                             editingRecipe = recipe
                             name = recipe.name
@@ -406,6 +413,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                             ingredientAmount = ""
                             ingredientUnit = "g"
                             editingIngredientIndex = null
+                            focusScope.launch { nameFocus.bringIntoView() }
                         }) {
                             Text(text = stringResource(R.string.button_edit))
                         }
@@ -478,19 +486,20 @@ fun RecipesScreen(viewModel: AppViewModel) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
                             OutlinedButton(onClick = {
-                            editingRecipe = recipe
-                            name = recipe.name
-                            servingsText = recipe.servings.toString()
-                            draftIngredients.clear()
-                            draftIngredients.addAll(recipe.ingredients)
-                            mealType = recipe.mealType
-                            ingredientName = ""
-                            ingredientAmount = ""
-                            ingredientUnit = "g"
-                            editingIngredientIndex = null
-                        }) {
-                            Text(text = stringResource(R.string.button_edit))
-                        }
+                                editingRecipe = recipe
+                                name = recipe.name
+                                servingsText = recipe.servings.toString()
+                                draftIngredients.clear()
+                                draftIngredients.addAll(recipe.ingredients)
+                                mealType = recipe.mealType
+                                ingredientName = ""
+                                ingredientAmount = ""
+                                ingredientUnit = "g"
+                                editingIngredientIndex = null
+                                focusScope.launch { nameFocus.bringIntoView() }
+                            }) {
+                                Text(text = stringResource(R.string.button_edit))
+                            }
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
                                 Text(text = stringResource(R.string.button_delete))
