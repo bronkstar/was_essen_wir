@@ -130,12 +130,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
         ingredientUnit = "g"
         editingIngredientIndex = null
         focusScope.launch {
-            val currentIndex = listState.firstVisibleItemIndex
-            if (currentIndex > nameItemIndex + 1) {
-                val midIndex = (currentIndex + nameItemIndex) / 2
-                listState.animateScrollToItem(midIndex)
-                delay(80)
-            }
+            delay(120)
             listState.animateScrollToItem(nameItemIndex)
         }
     }
