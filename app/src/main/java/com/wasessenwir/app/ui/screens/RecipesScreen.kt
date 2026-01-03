@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,6 +33,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.focus.onFocusEvent
+import kotlinx.coroutines.launch
 import com.wasessenwir.app.R
 import com.wasessenwir.app.data.model.Ingredient
 import com.wasessenwir.app.data.model.MealType
@@ -58,6 +64,12 @@ fun RecipesScreen(viewModel: AppViewModel) {
     var editingRecipe by remember { mutableStateOf<Recipe?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var listFilter by remember { mutableStateOf<MealType?>(null) }
+    val focusScope = rememberCoroutineScope()
+    val nameFocus = remember { BringIntoViewRequester() }
+    val servingsFocus = remember { BringIntoViewRequester() }
+    val ingredientNameFocus = remember { BringIntoViewRequester() }
+    val ingredientAmountFocus = remember { BringIntoViewRequester() }
+    val searchFocus = remember { BringIntoViewRequester() }
 
     val recentRecipes = recipes.sortedByDescending { it.updatedAt }.take(3)
     val ingredientDefaults = remember(recipes) {
@@ -97,7 +109,8 @@ fun RecipesScreen(viewModel: AppViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(24.dp)
+            .imePadding(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
@@ -108,7 +121,14 @@ fun RecipesScreen(viewModel: AppViewModel) {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(nameFocus)
+                    .onFocusEvent { state ->
+                        if (state.isFocused) {
+                            focusScope.launch { nameFocus.bringIntoView() }
+                        }
+                    },
                 label = { Text(text = stringResource(R.string.recipe_name_label)) }
             )
         }
@@ -117,7 +137,14 @@ fun RecipesScreen(viewModel: AppViewModel) {
             OutlinedTextField(
                 value = servingsText,
                 onValueChange = { servingsText = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(servingsFocus)
+                    .onFocusEvent { state ->
+                        if (state.isFocused) {
+                            focusScope.launch { servingsFocus.bringIntoView() }
+                        }
+                    },
                 label = { Text(text = stringResource(R.string.recipe_servings_label)) }
             )
         }
@@ -153,39 +180,46 @@ fun RecipesScreen(viewModel: AppViewModel) {
         }
 
         item {
-            OutlinedTextField(
-                value = ingredientName,
-                onValueChange = { ingredientName = it },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(text = stringResource(R.string.ingredient_name_label)) }
-            )
-        }
-
-        if (ingredientSuggestions.isNotEmpty()) {
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        ingredientSuggestions.forEach { suggestion ->
-                            Text(
-                                text = suggestion.name,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        ingredientName = suggestion.name
-                                        ingredientUnit = suggestion.unit
-                                        if (suggestion.amount > 0.0) {
-                                            ingredientAmount = suggestion.amount.toString()
+            Column {
+                if (ingredientSuggestions.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            ingredientSuggestions.forEach { suggestion ->
+                                Text(
+                                    text = suggestion.name,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            ingredientName = suggestion.name
+                                            ingredientUnit = suggestion.unit
+                                            if (suggestion.amount > 0.0) {
+                                                ingredientAmount = suggestion.amount.toString()
+                                            }
                                         }
-                                    }
-                                    .padding(vertical = 8.dp, horizontal = 8.dp),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                                        .padding(vertical = 8.dp, horizontal = 8.dp),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
+                OutlinedTextField(
+                    value = ingredientName,
+                    onValueChange = { ingredientName = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .bringIntoViewRequester(ingredientNameFocus)
+                        .onFocusEvent { state ->
+                            if (state.isFocused) {
+                                focusScope.launch { ingredientNameFocus.bringIntoView() }
+                            }
+                        },
+                    label = { Text(text = stringResource(R.string.ingredient_name_label)) }
+                )
             }
         }
 
@@ -194,7 +228,14 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 OutlinedTextField(
                     value = ingredientAmount,
                     onValueChange = { ingredientAmount = it },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .bringIntoViewRequester(ingredientAmountFocus)
+                        .onFocusEvent { state ->
+                            if (state.isFocused) {
+                                focusScope.launch { ingredientAmountFocus.bringIntoView() }
+                            }
+                        },
                     label = {
                         Text(
                             text = stringResource(R.string.ingredient_amount_label),
@@ -316,7 +357,14 @@ fun RecipesScreen(viewModel: AppViewModel) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bringIntoViewRequester(searchFocus)
+                    .onFocusEvent { state ->
+                        if (state.isFocused) {
+                            focusScope.launch { searchFocus.bringIntoView() }
+                        }
+                    },
                 label = { Text(text = stringResource(R.string.recipe_search_label)) }
             )
         }
