@@ -65,169 +65,169 @@ fun RecipesScreen(viewModel: AppViewModel) {
         matchesQuery && matchesFilter
     }
 
-    Column(
+    if (activeHouseholdId == null) {
+        Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+            Text(text = stringResource(R.string.needs_active_household))
+        }
+        return
+    }
+
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (activeHouseholdId == null) {
-            Text(text = stringResource(R.string.needs_active_household))
-            return
+        item {
+            Text(text = stringResource(R.string.recipe_create_title), style = MaterialTheme.typography.titleMedium)
         }
 
-        Text(text = stringResource(R.string.recipe_create_title), style = MaterialTheme.typography.titleMedium)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.recipe_name_label)) }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = servingsText,
-            onValueChange = { servingsText = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.recipe_servings_label)) }
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(text = stringResource(R.string.recipe_meal_type_label), style = MaterialTheme.typography.labelMedium)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row {
-            SegmentedChoice(
-                text = stringResource(R.string.recipe_meal_lunch),
-                selected = mealType == MealType.LUNCH,
-                onClick = { mealType = MealType.LUNCH }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SegmentedChoice(
-                text = stringResource(R.string.recipe_meal_dinner),
-                selected = mealType == MealType.DINNER,
-                onClick = { mealType = MealType.DINNER }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SegmentedChoice(
-                text = stringResource(R.string.recipe_meal_both),
-                selected = mealType == MealType.BOTH,
-                onClick = { mealType = MealType.BOTH }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(text = stringResource(R.string.ingredients_title), style = MaterialTheme.typography.labelMedium)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = ingredientName,
-            onValueChange = { ingredientName = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.ingredient_name_label)) }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row {
+        item {
             OutlinedTextField(
-                value = ingredientAmount,
-                onValueChange = { ingredientAmount = it },
-                modifier = Modifier.weight(2f),
-                label = { Text(text = stringResource(R.string.ingredient_amount_label)) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            UnitDropdown(
-                value = ingredientUnit,
-                onValueChange = { ingredientUnit = it },
-                label = stringResource(R.string.ingredient_unit_label),
-                modifier = Modifier.weight(1f)
+                value = name,
+                onValueChange = { name = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(R.string.recipe_name_label)) }
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            OutlinedTextField(
+                value = servingsText,
+                onValueChange = { servingsText = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(R.string.recipe_servings_label)) }
+            )
+        }
 
-        OutlinedButton(onClick = {
-            val trimmed = ingredientName.trim()
-            if (trimmed.isNotEmpty()) {
-                val amount = ingredientAmount.toDoubleOrNull() ?: 0.0
-                draftIngredients.add(Ingredient(trimmed, amount, ingredientUnit.trim()))
-                ingredientName = ""
-                ingredientAmount = ""
-                ingredientUnit = "g"
+        item {
+            Text(text = stringResource(R.string.recipe_meal_type_label), style = MaterialTheme.typography.labelMedium)
+        }
+
+        item {
+            Row {
+                SegmentedChoice(
+                    text = stringResource(R.string.recipe_meal_lunch),
+                    selected = mealType == MealType.LUNCH,
+                    onClick = { mealType = MealType.LUNCH }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SegmentedChoice(
+                    text = stringResource(R.string.recipe_meal_dinner),
+                    selected = mealType == MealType.DINNER,
+                    onClick = { mealType = MealType.DINNER }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SegmentedChoice(
+                    text = stringResource(R.string.recipe_meal_both),
+                    selected = mealType == MealType.BOTH,
+                    onClick = { mealType = MealType.BOTH }
+                )
             }
-        }) {
-            Text(text = stringResource(R.string.button_add_ingredient))
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            Text(text = stringResource(R.string.ingredients_title), style = MaterialTheme.typography.labelMedium)
+        }
+
+        item {
+            OutlinedTextField(
+                value = ingredientName,
+                onValueChange = { ingredientName = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(R.string.ingredient_name_label)) }
+            )
+        }
+
+        item {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = ingredientAmount,
+                    onValueChange = { ingredientAmount = it },
+                    modifier = Modifier.weight(2f),
+                    label = { Text(text = stringResource(R.string.ingredient_amount_label)) }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                UnitDropdown(
+                    value = ingredientUnit,
+                    onValueChange = { ingredientUnit = it },
+                    label = stringResource(R.string.ingredient_unit_label),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        item {
+            OutlinedButton(onClick = {
+                val trimmed = ingredientName.trim()
+                if (trimmed.isNotEmpty()) {
+                    val amount = ingredientAmount.toDoubleOrNull() ?: 0.0
+                    draftIngredients.add(Ingredient(trimmed, amount, ingredientUnit.trim()))
+                    ingredientName = ""
+                    ingredientAmount = ""
+                    ingredientUnit = "g"
+                }
+            }) {
+                Text(text = stringResource(R.string.button_add_ingredient))
+            }
+        }
 
         if (draftIngredients.isNotEmpty()) {
-            draftIngredients.forEach { ingredient ->
+            items(draftIngredients) { ingredient ->
                 Text(text = "- ${ingredient.amount} ${ingredient.unit} ${ingredient.name}")
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row {
-            PrimaryButton(
-                text = stringResource(R.string.button_save_recipe),
-                onClick = {
-                    val trimmed = name.trim()
-                    val servings = servingsText.toIntOrNull() ?: 0
-                    if (trimmed.isNotEmpty()) {
-                        if (editingRecipe == null) {
-                            viewModel.createRecipe(trimmed, servings, draftIngredients.toList(), mealType)
-                        } else {
-                            val existing = editingRecipe!!
-                            viewModel.updateRecipe(
-                                existing.copy(
-                                    name = trimmed,
-                                    servings = servings,
-                                    ingredients = draftIngredients.toList(),
-                                    mealType = mealType
+        item {
+            Row {
+                PrimaryButton(
+                    text = stringResource(R.string.button_save_recipe),
+                    onClick = {
+                        val trimmed = name.trim()
+                        val servings = servingsText.toIntOrNull() ?: 0
+                        if (trimmed.isNotEmpty()) {
+                            if (editingRecipe == null) {
+                                viewModel.createRecipe(trimmed, servings, draftIngredients.toList(), mealType)
+                            } else {
+                                val existing = editingRecipe!!
+                                viewModel.updateRecipe(
+                                    existing.copy(
+                                        name = trimmed,
+                                        servings = servings,
+                                        ingredients = draftIngredients.toList(),
+                                        mealType = mealType
+                                    )
                                 )
-                            )
+                            }
+                            name = ""
+                            servingsText = "2"
+                            draftIngredients.clear()
+                            mealType = MealType.BOTH
+                            editingRecipe = null
                         }
+                    }
+                )
+
+                if (editingRecipe != null) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(onClick = {
+                        editingRecipe = null
                         name = ""
                         servingsText = "2"
                         draftIngredients.clear()
                         mealType = MealType.BOTH
-                        editingRecipe = null
+                    }) {
+                        Text(text = stringResource(R.string.button_cancel))
                     }
-                }
-            )
-
-            if (editingRecipe != null) {
-                Spacer(modifier = Modifier.width(8.dp))
-                OutlinedButton(onClick = {
-                    editingRecipe = null
-                    name = ""
-                    servingsText = "2"
-                    draftIngredients.clear()
-                    mealType = MealType.BOTH
-                }) {
-                    Text(text = stringResource(R.string.button_cancel))
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         if (recentRecipes.isNotEmpty()) {
-            Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            recentRecipes.forEach { recipe ->
+            item {
+                Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
+            }
+            items(recentRecipes) { recipe ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -248,91 +248,84 @@ fun RecipesScreen(viewModel: AppViewModel) {
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
-        Text(text = stringResource(R.string.recipe_list_title), style = MaterialTheme.typography.titleMedium)
+        item {
+            Text(text = stringResource(R.string.recipe_list_title), style = MaterialTheme.typography.titleMedium)
+        }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.recipe_search_label)) }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row {
-            SegmentedChoice(
-                text = stringResource(R.string.recipe_filter_all),
-                selected = listFilter == null,
-                onClick = { listFilter = null }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SegmentedChoice(
-                text = stringResource(R.string.recipe_meal_lunch),
-                selected = listFilter == MealType.LUNCH,
-                onClick = { listFilter = MealType.LUNCH }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SegmentedChoice(
-                text = stringResource(R.string.recipe_meal_dinner),
-                selected = listFilter == MealType.DINNER,
-                onClick = { listFilter = MealType.DINNER }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SegmentedChoice(
-                text = stringResource(R.string.recipe_meal_both),
-                selected = listFilter == MealType.BOTH,
-                onClick = { listFilter = MealType.BOTH }
+        item {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(R.string.recipe_search_label)) }
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        item {
+            Row {
+                SegmentedChoice(
+                    text = stringResource(R.string.recipe_filter_all),
+                    selected = listFilter == null,
+                    onClick = { listFilter = null }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SegmentedChoice(
+                    text = stringResource(R.string.recipe_meal_lunch),
+                    selected = listFilter == MealType.LUNCH,
+                    onClick = { listFilter = MealType.LUNCH }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SegmentedChoice(
+                    text = stringResource(R.string.recipe_meal_dinner),
+                    selected = listFilter == MealType.DINNER,
+                    onClick = { listFilter = MealType.DINNER }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SegmentedChoice(
+                    text = stringResource(R.string.recipe_meal_both),
+                    selected = listFilter == MealType.BOTH,
+                    onClick = { listFilter = MealType.BOTH }
+                )
+            }
+        }
 
         if (filteredRecipes.isEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = stringResource(R.string.recipe_search_empty))
+            item {
+                Text(text = stringResource(R.string.recipe_search_empty))
+            }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                items(filteredRecipes, key = { it.id }) { recipe ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
-                            Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
-                            Text(
-                                text = stringResource(
-                                    R.string.recipe_ingredients_count,
-                                    recipe.ingredients.size
-                                )
+            items(filteredRecipes, key = { it.id }) { recipe ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
+                        Text(text = stringResource(R.string.recipe_servings_value, recipe.servings))
+                        Text(
+                            text = stringResource(
+                                R.string.recipe_ingredients_count,
+                                recipe.ingredients.size
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row {
-                                OutlinedButton(onClick = {
-                                    editingRecipe = recipe
-                                    name = recipe.name
-                                    servingsText = recipe.servings.toString()
-                                    draftIngredients.clear()
-                                    draftIngredients.addAll(recipe.ingredients)
-                                    mealType = recipe.mealType
-                                }) {
-                                    Text(text = stringResource(R.string.button_edit))
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
-                                    Text(text = stringResource(R.string.button_delete))
-                                }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row {
+                            OutlinedButton(onClick = {
+                                editingRecipe = recipe
+                                name = recipe.name
+                                servingsText = recipe.servings.toString()
+                                draftIngredients.clear()
+                                draftIngredients.addAll(recipe.ingredients)
+                                mealType = recipe.mealType
+                            }) {
+                                Text(text = stringResource(R.string.button_edit))
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
+                                Text(text = stringResource(R.string.button_delete))
                             }
                         }
                     }
