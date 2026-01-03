@@ -112,6 +112,7 @@ fun PlanScreen(viewModel: AppViewModel) {
         }
     }
 
+    val recipeById = remember(recipes) { recipes.associateBy { it.id } }
     val recentRecipes = mealFilteredRecipes.sortedByDescending { it.updatedAt }.take(5)
     val filteredRecipes = mealFilteredRecipes.filter { recipe ->
         searchQuery.isBlank() || recipe.name.contains(searchQuery, ignoreCase = true)
@@ -159,6 +160,17 @@ fun PlanScreen(viewModel: AppViewModel) {
     } else {
         ""
     }
+    val rangeIsoDates = remember(rangeDates) { rangeDates.map { it.format(isoFormatter) } }
+    val rangeEntries = remember(planEntries, rangeIsoDates) {
+        if (rangeIsoDates.isEmpty()) {
+            emptyList()
+        } else {
+            val dateSet = rangeIsoDates.toSet()
+            planEntries.filter { dateSet.contains(it.date) }
+        }
+    }
+    val lunchCount = rangeEntries.count { it.mealSlot == MealSlot.LUNCH }
+    val dinnerCount = rangeEntries.count { it.mealSlot == MealSlot.DINNER }
 
     Column(
         modifier = Modifier
@@ -227,6 +239,93 @@ fun PlanScreen(viewModel: AppViewModel) {
                 }
             }
         )
+
+        if (planningActive && rangeDates.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = stringResource(R.string.plan_list_overview_title), style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.plan_list_range_label, startDisplay, endDisplay),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.plan_lunch_progress_label, lunchCount, rangeDates.size),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
+                        text = stringResource(R.string.plan_dinner_progress_label, dinnerCount, rangeDates.size),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    rangeDates.forEach { date ->
+                        val dateIso = date.format(isoFormatter)
+                        val lunchId = entryByKey[entryKey(dateIso, MealSlot.LUNCH)]?.recipeId
+                        val dinnerId = entryByKey[entryKey(dateIso, MealSlot.DINNER)]?.recipeId
+                        val lunchName = lunchId?.let { recipeById[it]?.name } ?: "-"
+                        val dinnerName = dinnerId?.let { recipeById[it]?.name } ?: "-"
+
+                        Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                            Text(text = date.format(displayFormatter), style = MaterialTheme.typography.labelLarge)
+                            Text(
+                                text = stringResource(R.string.plan_lunch_summary, lunchName),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                text = stringResource(R.string.plan_dinner_summary, dinnerName),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row {
+                        PrimaryButton(
+                            text = stringResource(R.string.plan_add_to_shopping_list),
+                            onClick = {
+                                if (startIso.isNotBlank()) {
+                                    viewModel.createShoppingListFromPlan(startIso, rangeEntries, recipes)
+                                }
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedButton(onClick = { showPlannerSheet = true }) {
+                            Text(text = stringResource(R.string.button_edit))
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedButton(
+                            onClick = {
+                                rangeEntries.forEach { entry ->
+                                    viewModel.deletePlanEntry(entry.id)
+                                }
+                                planningActive = false
+                                showPlannerSheet = false
+                                startIso = ""
+                                endIso = ""
+                                startDisplay = ""
+                                endDisplay = ""
+                                searchQuery = ""
+                                mealFilter = MealType.BOTH
+                                initializedRangeKey = ""
+                                selectedRecipeIds.clear()
+                                slotSelections.clear()
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text(text = stringResource(R.string.button_delete))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     if (showPlannerSheet && planningActive && rangeDates.isNotEmpty()) {

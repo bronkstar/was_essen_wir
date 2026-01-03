@@ -62,6 +62,13 @@
     <string name="plan_meal_dinner_label">Abendessen</string>
     <string name="plan_save_button">Plan speichern</string>
     <string name="plan_no_selection">Keine Auswahl</string>
+    <string name="plan_list_overview_title">Wochenplan</string>
+    <string name="plan_list_range_label">Zeitraum: %1$s bis %2$s</string>
+    <string name="plan_lunch_progress_label">Mittag: %1$d/%2$d</string>
+    <string name="plan_dinner_progress_label">Abend: %1$d/%2$d</string>
+    <string name="plan_lunch_summary">Mittag: %1$s</string>
+    <string name="plan_dinner_summary">Abend: %1$s</string>
+    <string name="plan_add_to_shopping_list">Zur Einkaufsliste</string>
     <string name="button_add_to_list">Zur Liste</string>
     <string name="button_remove_from_list">Aus Liste</string>
     <string name="button_close">Schliessen</string>
