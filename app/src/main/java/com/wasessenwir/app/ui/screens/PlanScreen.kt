@@ -93,8 +93,8 @@ fun PlanScreen(viewModel: AppViewModel) {
                 emptyList()
             } else {
                 val dates = mutableListOf<LocalDate>()
-                var cursor = start
-                val endDate = end
+                var cursor = start!!
+                val endDate = end!!
                 while (!cursor.isAfter(endDate)) {
                     dates.add(cursor)
                     cursor = cursor.plusDays(1)
