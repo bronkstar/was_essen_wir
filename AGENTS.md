@@ -9,6 +9,7 @@
 - Vor jedem Arbeitspaket kurze, nummerierte Fragen stellen und erst nach Bestaetigung starten.
 - Danach ein Satz "Scope-Ack" (was drin ist, was explizit nicht).
 - Kleine, klare Commits pro Phase.
+- UI-Aenderungen nur nach frischem Build + Reinstall pruefen; Update-Zeit via `adb shell dumpsys package com.wasessenwir.app | grep lastUpdateTime` verifizieren.
 - Keine Secrets ins Repo; Firebase Keys nur ueber .env/.local files.
 
 ## Rollen (Agent-Setup)
