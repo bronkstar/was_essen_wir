@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,9 +42,7 @@ fun UnitDropdown(
                 )
             },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = modifier
-                .menuAnchor()
-                .fillMaxWidth()
+            modifier = modifier.menuAnchor()
         )
         ExposedDropdownMenu(
             expanded = expanded,
