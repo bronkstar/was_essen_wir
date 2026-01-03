@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ButtonDefaults
@@ -73,6 +74,8 @@ fun RecipesScreen(viewModel: AppViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     var listFilter by remember { mutableStateOf<MealType?>(null) }
     val focusScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+    val nameItemIndex = 1
     val nameFocus = remember { BringIntoViewRequester() }
     val servingsFocus = remember { BringIntoViewRequester() }
     val ingredientNameFocus = remember { BringIntoViewRequester() }
@@ -114,15 +117,39 @@ fun RecipesScreen(viewModel: AppViewModel) {
         return
     }
 
+    val startEditing: (Recipe) -> Unit = { recipe ->
+        editingRecipe = recipe
+        name = recipe.name
+        servingsText = recipe.servings.toString()
+        draftIngredients.clear()
+        draftIngredients.addAll(recipe.ingredients)
+        mealType = recipe.mealType
+        ingredientName = ""
+        ingredientAmount = ""
+        ingredientUnit = "g"
+        editingIngredientIndex = null
+        focusScope.launch { listState.animateScrollToItem(nameItemIndex) }
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
             .imePadding(),
+        state = listState,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
             Text(text = stringResource(R.string.recipe_create_title), style = MaterialTheme.typography.titleMedium)
+        }
+
+        if (editingRecipe != null) {
+            item {
+                Text(
+                    text = stringResource(R.string.recipe_editing_label, editingRecipe!!.name),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
         }
 
         item {
@@ -403,17 +430,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                             modifier = Modifier.weight(1f)
                         )
                         OutlinedButton(onClick = {
-                            editingRecipe = recipe
-                            name = recipe.name
-                            servingsText = recipe.servings.toString()
-                            draftIngredients.clear()
-                            draftIngredients.addAll(recipe.ingredients)
-                            mealType = recipe.mealType
-                            ingredientName = ""
-                            ingredientAmount = ""
-                            ingredientUnit = "g"
-                            editingIngredientIndex = null
-                            focusScope.launch { nameFocus.bringIntoView() }
+                            startEditing(recipe)
                         }) {
                             Text(text = stringResource(R.string.button_edit))
                         }
@@ -486,17 +503,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
                             OutlinedButton(onClick = {
-                                editingRecipe = recipe
-                                name = recipe.name
-                                servingsText = recipe.servings.toString()
-                                draftIngredients.clear()
-                                draftIngredients.addAll(recipe.ingredients)
-                                mealType = recipe.mealType
-                                ingredientName = ""
-                                ingredientAmount = ""
-                                ingredientUnit = "g"
-                                editingIngredientIndex = null
-                                focusScope.launch { nameFocus.bringIntoView() }
+                                startEditing(recipe)
                             }) {
                                 Text(text = stringResource(R.string.button_edit))
                             }

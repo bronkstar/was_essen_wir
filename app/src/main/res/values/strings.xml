@@ -32,6 +32,7 @@
     <string name="recipe_meal_both">Beides</string>
     <string name="recipe_recent_title">Kuerzlich hinzugefuegt</string>
     <string name="recipe_search_empty">Keine Treffer in der Rezept-Liste.</string>
+    <string name="recipe_editing_label">Bearbeiten: %1$s</string>
     <string name="ingredients_title">Zutaten</string>
     <string name="ingredient_name_label">Zutatenname</string>
     <string name="ingredient_amount_label">Menge</string>
