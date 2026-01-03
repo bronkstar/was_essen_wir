@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +41,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import kotlinx.coroutines.launch
 import com.wasessenwir.app.R
 import com.wasessenwir.app.data.model.Ingredient
@@ -61,6 +67,7 @@ fun RecipesScreen(viewModel: AppViewModel) {
     var ingredientAmount by remember { mutableStateOf("") }
     var ingredientUnit by remember { mutableStateOf("g") }
     val draftIngredients = remember { mutableStateListOf<Ingredient>() }
+    var editingIngredientIndex by remember { mutableStateOf<Int?>(null) }
 
     var editingRecipe by remember { mutableStateOf<Recipe?>(null) }
     var searchQuery by remember { mutableStateOf("") }
@@ -261,19 +268,64 @@ fun RecipesScreen(viewModel: AppViewModel) {
                 val trimmed = ingredientName.trim()
                 if (trimmed.isNotEmpty()) {
                     val amount = ingredientAmount.toDoubleOrNull() ?: 0.0
-                    draftIngredients.add(Ingredient(trimmed, amount, ingredientUnit.trim()))
+                    val updated = Ingredient(trimmed, amount, ingredientUnit.trim())
+                    val index = editingIngredientIndex
+                    if (index != null && index in draftIngredients.indices) {
+                        draftIngredients[index] = updated
+                    } else {
+                        draftIngredients.add(updated)
+                    }
                     ingredientName = ""
                     ingredientAmount = ""
                     ingredientUnit = "g"
+                    editingIngredientIndex = null
                 }
             }) {
-                Text(text = stringResource(R.string.button_add_ingredient))
+                val buttonLabel = if (editingIngredientIndex == null) {
+                    stringResource(R.string.button_add_ingredient)
+                } else {
+                    stringResource(R.string.button_update_ingredient)
+                }
+                Text(text = buttonLabel)
             }
         }
 
         if (draftIngredients.isNotEmpty()) {
-            items(draftIngredients) { ingredient ->
-                Text(text = "- ${ingredient.amount} ${ingredient.unit} ${ingredient.name}")
+            itemsIndexed(draftIngredients) { index, ingredient ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "- ${ingredient.amount} ${ingredient.unit} ${ingredient.name}",
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = {
+                        editingIngredientIndex = index
+                        ingredientName = ingredient.name
+                        ingredientAmount = ingredient.amount.toString()
+                        ingredientUnit = ingredient.unit
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = stringResource(R.string.ingredient_edit_desc)
+                        )
+                    }
+                    IconButton(onClick = {
+                        draftIngredients.removeAt(index)
+                        val editingIndex = editingIngredientIndex
+                        if (editingIndex == index) {
+                            editingIngredientIndex = null
+                        } else if (editingIndex != null && index < editingIndex) {
+                            editingIngredientIndex = editingIndex - 1
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = stringResource(R.string.ingredient_delete_desc)
+                        )
+                    }
+                }
             }
         }
 
@@ -301,8 +353,12 @@ fun RecipesScreen(viewModel: AppViewModel) {
                             name = ""
                             servingsText = "2"
                             draftIngredients.clear()
+                            ingredientName = ""
+                            ingredientAmount = ""
+                            ingredientUnit = "g"
                             mealType = MealType.BOTH
                             editingRecipe = null
+                            editingIngredientIndex = null
                         }
                     }
                 )
@@ -315,6 +371,10 @@ fun RecipesScreen(viewModel: AppViewModel) {
                         servingsText = "2"
                         draftIngredients.clear()
                         mealType = MealType.BOTH
+                        ingredientName = ""
+                        ingredientAmount = ""
+                        ingredientUnit = "g"
+                        editingIngredientIndex = null
                     }) {
                         Text(text = stringResource(R.string.button_cancel))
                     }
@@ -342,6 +402,10 @@ fun RecipesScreen(viewModel: AppViewModel) {
                             draftIngredients.clear()
                             draftIngredients.addAll(recipe.ingredients)
                             mealType = recipe.mealType
+                            ingredientName = ""
+                            ingredientAmount = ""
+                            ingredientUnit = "g"
+                            editingIngredientIndex = null
                         }) {
                             Text(text = stringResource(R.string.button_edit))
                         }
@@ -414,15 +478,19 @@ fun RecipesScreen(viewModel: AppViewModel) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
                             OutlinedButton(onClick = {
-                                editingRecipe = recipe
-                                name = recipe.name
-                                servingsText = recipe.servings.toString()
-                                draftIngredients.clear()
-                                draftIngredients.addAll(recipe.ingredients)
-                                mealType = recipe.mealType
-                            }) {
-                                Text(text = stringResource(R.string.button_edit))
-                            }
+                            editingRecipe = recipe
+                            name = recipe.name
+                            servingsText = recipe.servings.toString()
+                            draftIngredients.clear()
+                            draftIngredients.addAll(recipe.ingredients)
+                            mealType = recipe.mealType
+                            ingredientName = ""
+                            ingredientAmount = ""
+                            ingredientUnit = "g"
+                            editingIngredientIndex = null
+                        }) {
+                            Text(text = stringResource(R.string.button_edit))
+                        }
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedButton(onClick = { viewModel.deleteRecipe(recipe.id) }) {
                                 Text(text = stringResource(R.string.button_delete))

@@ -37,6 +37,9 @@
     <string name="ingredient_amount_label">Menge</string>
     <string name="ingredient_unit_label">Einheit</string>
     <string name="button_add_ingredient">Zutat hinzufuegen</string>
+    <string name="button_update_ingredient">Zutat speichern</string>
+    <string name="ingredient_edit_desc">Zutat bearbeiten</string>
+    <string name="ingredient_delete_desc">Zutat loeschen</string>
     <string name="button_save_recipe">Rezept speichern</string>
     <string name="recipe_servings_value">Portionen: %1$d</string>
     <string name="recipe_ingredients_count">Zutaten: %1$d</string>
