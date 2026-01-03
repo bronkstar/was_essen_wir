@@ -223,165 +223,164 @@ fun PlanScreen(viewModel: AppViewModel) {
 
         if (!planningActive || rangeDates.isEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
-            return
-        }
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = stringResource(R.string.plan_recipe_pick_title), style = MaterialTheme.typography.titleMedium)
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = stringResource(R.string.plan_recipe_pick_title), style = MaterialTheme.typography.titleMedium)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row {
-            SegmentedChoicePlan(
-                text = stringResource(R.string.meal_all),
-                selected = mealFilter == MealType.BOTH,
-                onClick = { mealFilter = MealType.BOTH }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SegmentedChoicePlan(
-                text = stringResource(R.string.meal_lunch),
-                selected = mealFilter == MealType.LUNCH,
-                onClick = { mealFilter = MealType.LUNCH }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            SegmentedChoicePlan(
-                text = stringResource(R.string.meal_dinner),
-                selected = mealFilter == MealType.DINNER,
-                onClick = { mealFilter = MealType.DINNER }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (recentRecipes.isNotEmpty()) {
-            Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                recentRecipes.forEach { recipe ->
-                    RecipeToggleRow(
-                        recipe = recipe,
-                        selected = selectedRecipeIds.contains(recipe.id),
-                        onToggle = { toggleRecipe(selectedRecipeIds, recipe.id) }
-                    )
+
+            Row {
+                SegmentedChoicePlan(
+                    text = stringResource(R.string.meal_all),
+                    selected = mealFilter == MealType.BOTH,
+                    onClick = { mealFilter = MealType.BOTH }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SegmentedChoicePlan(
+                    text = stringResource(R.string.meal_lunch),
+                    selected = mealFilter == MealType.LUNCH,
+                    onClick = { mealFilter = MealType.LUNCH }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                SegmentedChoicePlan(
+                    text = stringResource(R.string.meal_dinner),
+                    selected = mealFilter == MealType.DINNER,
+                    onClick = { mealFilter = MealType.DINNER }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (recentRecipes.isNotEmpty()) {
+                Text(text = stringResource(R.string.recipe_recent_title), style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    recentRecipes.forEach { recipe ->
+                        RecipeToggleRow(
+                            recipe = recipe,
+                            selected = selectedRecipeIds.contains(recipe.id),
+                            onToggle = { toggleRecipe(selectedRecipeIds, recipe.id) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = stringResource(R.string.recipe_search_label)) }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 220.dp)
+            ) {
+                if (filteredRecipes.isEmpty()) {
+                    item {
+                        Text(text = stringResource(R.string.recipe_search_empty))
+                    }
+                } else {
+                    items(filteredRecipes, key = { it.id }) { recipe ->
+                        RecipeToggleRow(
+                            recipe = recipe,
+                            selected = selectedRecipeIds.contains(recipe.id),
+                            onToggle = { toggleRecipe(selectedRecipeIds, recipe.id) }
+                        )
+                    }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = stringResource(R.string.plan_assignment_title), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-        }
 
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.recipe_search_label)) }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 220.dp)
-        ) {
-            if (filteredRecipes.isEmpty()) {
-                item {
-                    Text(text = stringResource(R.string.recipe_search_empty))
-                }
-            } else {
-                items(filteredRecipes, key = { it.id }) { recipe ->
-                    RecipeToggleRow(
-                        recipe = recipe,
-                        selected = selectedRecipeIds.contains(recipe.id),
-                        onToggle = { toggleRecipe(selectedRecipeIds, recipe.id) }
-                    )
-                }
+            if (completionLabel.isNotBlank()) {
+                Text(text = completionLabel, style = MaterialTheme.typography.bodySmall)
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = stringResource(R.string.plan_assignment_title), style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        if (completionLabel.isNotBlank()) {
-            Text(text = completionLabel, style = MaterialTheme.typography.bodySmall)
-        }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(rangeDates) { date ->
+                    val dateIso = date.format(isoFormatter)
+                    val dateLabel = date.format(displayFormatter)
+                    val lunchKey = entryKey(dateIso, MealSlot.LUNCH)
+                    val dinnerKey = entryKey(dateIso, MealSlot.DINNER)
+                    val lunchSelection = slotSelections[lunchKey]
+                    val dinnerSelection = slotSelections[dinnerKey]
+                    val missingLunch = lunchSelection.isNullOrBlank()
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            items(rangeDates) { date ->
-                val dateIso = date.format(isoFormatter)
-                val dateLabel = date.format(displayFormatter)
-                val lunchKey = entryKey(dateIso, MealSlot.LUNCH)
-                val dinnerKey = entryKey(dateIso, MealSlot.DINNER)
-                val lunchSelection = slotSelections[lunchKey]
-                val dinnerSelection = slotSelections[dinnerKey]
-                val missingLunch = lunchSelection.isNullOrBlank()
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(text = dateLabel, style = MaterialTheme.typography.titleMedium)
-                        if (missingLunch) {
-                            Text(
-                                text = stringResource(R.string.plan_missing_lunch),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(text = dateLabel, style = MaterialTheme.typography.titleMedium)
+                            if (missingLunch) {
+                                Text(
+                                    text = stringResource(R.string.plan_missing_lunch),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            RecipeDropdown(
+                                label = stringResource(R.string.plan_meal_lunch_label),
+                                recipes = selectedRecipes,
+                                selectedId = lunchSelection,
+                                onSelect = { slotSelections[lunchKey] = it }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            RecipeDropdown(
+                                label = stringResource(R.string.plan_meal_dinner_label),
+                                recipes = selectedRecipes,
+                                selectedId = dinnerSelection,
+                                onSelect = { slotSelections[dinnerKey] = it }
                             )
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        RecipeDropdown(
-                            label = stringResource(R.string.plan_meal_lunch_label),
-                            recipes = selectedRecipes,
-                            selectedId = lunchSelection,
-                            onSelect = { slotSelections[lunchKey] = it }
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        RecipeDropdown(
-                            label = stringResource(R.string.plan_meal_dinner_label),
-                            recipes = selectedRecipes,
-                            selectedId = dinnerSelection,
-                            onSelect = { slotSelections[dinnerKey] = it }
-                        )
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        PrimaryButton(
-            text = stringResource(R.string.plan_save_button),
-            onClick = {
-                val entriesByKey = planEntries.associateBy { entryKey(it.date, it.mealSlot) }
-                rangeDates.forEach { date ->
-                    val dateIso = date.format(isoFormatter)
-                    listOf(MealSlot.LUNCH, MealSlot.DINNER).forEach { slot ->
-                        val key = entryKey(dateIso, slot)
-                        val selectedId = slotSelections[key]
-                        val existing = entriesByKey[key]
-                        if (selectedId.isNullOrBlank()) {
-                            if (existing != null) {
-                                viewModel.deletePlanEntry(existing.id)
-                            }
-                        } else {
-                            if (existing == null) {
-                                viewModel.createPlanEntry(dateIso, slot, selectedId)
-                            } else if (existing.recipeId != selectedId) {
-                                viewModel.updatePlanEntry(existing.copy(recipeId = selectedId))
+            PrimaryButton(
+                text = stringResource(R.string.plan_save_button),
+                onClick = {
+                    val entriesByKey = planEntries.associateBy { entryKey(it.date, it.mealSlot) }
+                    rangeDates.forEach { date ->
+                        val dateIso = date.format(isoFormatter)
+                        listOf(MealSlot.LUNCH, MealSlot.DINNER).forEach { slot ->
+                            val key = entryKey(dateIso, slot)
+                            val selectedId = slotSelections[key]
+                            val existing = entriesByKey[key]
+                            if (selectedId.isNullOrBlank()) {
+                                if (existing != null) {
+                                    viewModel.deletePlanEntry(existing.id)
+                                }
+                            } else {
+                                if (existing == null) {
+                                    viewModel.createPlanEntry(dateIso, slot, selectedId)
+                                } else if (existing.recipeId != selectedId) {
+                                    viewModel.updatePlanEntry(existing.copy(recipeId = selectedId))
+                                }
                             }
                         }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 
     if (showStartPicker) {
